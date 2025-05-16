@@ -59,12 +59,12 @@ class MySearchBar extends StatelessWidget {
                         hintText: 'Search the ingredient',
                         leading: Icon(Icons.search, color: Colors.white),
                         onChanged: (query) {
-                          // Puoi filtrare qui
+                          // filtrare
                         },
                       );
                     },
                     suggestionsBuilder: (context, controller) {
-                      return []; // Aggiungi suggerimenti se vuoi
+                      return []; 
                     },
                   ),
                 ),
