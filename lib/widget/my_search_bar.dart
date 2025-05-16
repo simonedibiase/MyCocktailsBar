@@ -32,7 +32,7 @@ class MySearchBar extends StatelessWidget {
               'What do you want\n to cook today?',
               style: Theme.of(
                 context,
-              ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+              ).textTheme.bodyLarge!.copyWith(fontSize: 33),
               textAlign: TextAlign.center,
             ),
           ),
@@ -45,12 +45,6 @@ class MySearchBar extends StatelessWidget {
               child: SearchAnchor(
                 builder: (context, controller) {
                   return SearchBar(
-                    /* backgroundColor: WidgetStateProperty.all(
-                      Color.fromARGB(255, 255, 106, 0),
-                    ),
-                    textStyle: WidgetStateProperty.all(
-                      TextStyle(color: Colors.white),
-                    ),*/
                     hintText: 'Search the ingredient',
                     leading: Icon(Icons.search, color: Colors.white),
                     onChanged: (query) {
