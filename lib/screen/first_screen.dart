@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:my_coctails_bar/screen/main_screen.dart';
+import 'package:my_coctails_bar/navigation/main_screen.dart';
 
 class FirstScreen extends StatelessWidget {
   const FirstScreen({super.key});
