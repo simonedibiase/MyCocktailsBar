@@ -63,6 +63,16 @@ class MyApp extends StatelessWidget {
           const EdgeInsets.symmetric(horizontal: 20),
         ),
       ),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: baseTheme.primaryColor,
+        titleTextStyle: GoogleFonts.poppins(
+          fontSize: 25,
+          fontWeight: FontWeight.w300,
+          color: Colors.white,
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
     );
 
     return MaterialApp(theme: themedApp, home: const FirstScreen());
