@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:my_coctails_bar/widget/my_search_bar.dart';
 
 class Ingredients extends StatefulWidget {
@@ -33,6 +32,14 @@ class _IngredientsState extends State<Ingredients> {
             ),
           ),
         ],
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Action to perform when the button is pressed
+        },
+        backgroundColor: const Color.fromARGB(255, 255, 106, 0),
+        child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
   }
