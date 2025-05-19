@@ -58,11 +58,13 @@ class _MyState extends State<Scanner> {
                 (context) => const Center(child: CircularProgressIndicator()),
 
             scanWindow: Rect.fromLTWH(
-              (screenWidth - screenWidth * 0.8) / 2,
-              (screenHeight - screenHeight * 0.25) / 2,
-              screenWidth * 0.8,
-              screenHeight * 0.25,
+              (screenWidth - (screenWidth * 0.9)) / 2,
+              (screenHeight - (screenHeight * 0.7)) / 2,
+              screenWidth * 0.9,
+              screenHeight * 0.4,
             ),
+
+            
           ),
         ],
       ),
