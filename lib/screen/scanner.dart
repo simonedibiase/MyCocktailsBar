@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:my_coctails_bar/services/networking.dart';
 
 class Scanner extends StatefulWidget {
   const Scanner({super.key});
@@ -16,6 +17,7 @@ class _MyState extends State<Scanner> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    String resultScanner = "";
 
     return Scaffold(
       appBar: AppBar(title: const Text("Barcode Scanner")),
@@ -23,9 +25,17 @@ class _MyState extends State<Scanner> {
       body: Stack(
         children: [
           MobileScanner(
-            //controller: controller,
-            onDetect: (result) {
-              print(result.barcodes.first.rawValue);
+            onDetect: (result) async {
+              if (result.barcodes.first.rawValue != resultScanner) {
+                resultScanner = result.barcodes.first.rawValue!;
+                NetworkHelper networkHelper = NetworkHelper(
+                  Uri.parse(
+                    'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
+                  ),
+                );
+                var ingredientDeta = await networkHelper.getData();
+                print(ingredientDeta);
+              }
             },
             overlayBuilder: (context, constraints) {
               return Center(
@@ -63,8 +73,6 @@ class _MyState extends State<Scanner> {
               screenWidth * 0.9,
               screenHeight * 0.4,
             ),
-
-            
           ),
         ],
       ),
