@@ -1,7 +1,10 @@
-import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:my_coctails_bar/services/networking.dart';
+import 'package:my_coctails_bar/widget/ingredient_card.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Scanner extends StatefulWidget {
   const Scanner({super.key});
@@ -10,14 +13,25 @@ class Scanner extends StatefulWidget {
   State<Scanner> createState() => _MyState();
 }
 
-//class _ScannerPageState extends State<Scanner> with WidgetsBindingObserver {
-
 class _MyState extends State<Scanner> {
+  bool isDetecting = false;
+  bool showError = false;
+  String resultScanner = "";
+
+  void remove() {
+    setState(() {
+      isDetecting = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    String resultScanner = "";
+    Ingredient ingredient = Ingredient(
+      nome: 'Gin fabfpafib ajaib vndan vncdn avnp zcvnhnhzp',
+      imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text("Barcode Scanner")),
@@ -33,33 +47,63 @@ class _MyState extends State<Scanner> {
                     'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
                   ),
                 );
-                var ingredientDeta = await networkHelper.getData();
-                print(ingredientDeta);
+                final response1 = await networkHelper.getData();
+
+                if (response1['status'] == 1) {
+                  setState(() {
+                    isDetecting = true;
+                  });
+                } else {
+                  setState(() {
+                    isDetecting = false;
+                  });
+                  Fluttertoast.showToast(
+                    msg: "sorry, product not recognized",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
               }
             },
             overlayBuilder: (context, constraints) {
-              return Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: screenWidth * 0.8,
-                      height: screenHeight * 0.25,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          width: 3,
+              return Stack(
+                children: [
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: screenWidth * 0.8,
+                          height: screenHeight * 0.25,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color.fromARGB(255, 255, 255, 255),
+                              width: 3,
+                            ),
+                          ),
                         ),
-                      ),
+                        SizedBox(height: screenHeight * 0.02),
+                        const Text(
+                          'Scan the barcode of \nthe product',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        //if (isDetecting) IngredientItem(ingredient),
+                      ],
                     ),
-                    SizedBox(height: screenHeight * 0.02),
-                    const Text(
-                      'Scan the barcode of \nthe product',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                  if (isDetecting)
+                    Positioned(
+                      top: screenHeight * 0.65,
+                      left: screenWidth * 0.05,
+                      right: screenWidth * 0.05,
+                      child: IngredientCard(ingredient, onDismiss: remove),
                     ),
-                  ],
-                ),
+                ],
               );
             },
             //errorBuilder: aggiungere un widget che segnala un errore in caso in cui non vi sono autorizzazioni,
