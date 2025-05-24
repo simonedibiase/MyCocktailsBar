@@ -1,48 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_coctails_bar/models/ingredient.dart';
+import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/screen/scanner.dart';
+import 'package:my_coctails_bar/widget/ingredient_tile.dart';
 import 'package:my_coctails_bar/widget/my_search_bar.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
-class Ingredients extends StatefulWidget {
+class Ingredients extends ConsumerWidget {
   const Ingredients({super.key});
 
   @override
-  State<Ingredients> createState() => _IngredientsState();
-}
-
-class _IngredientsState extends State<Ingredients> {
-  @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+  Widget build(BuildContext context, WidgetRef ref) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final ingredients = ref.watch(userIngredientsProvider);
+    final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
+
+    void _removeIngredientWithUndo(Ingredient ingredient) {
+
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 3),
+          elevation: screenHeight * 0.5,
+          content: Text(
+            'Ingredient removed!',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          action: SnackBarAction(
+            label: 'Cancel',
+            onPressed: () {
+              ingredientsNotifier.addIngredient(ingredient);
+            },
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       body: Column(
         children: [
           MySearchBar(),
-          Container(
-            width: screenWidth * 0.9,
-            alignment: Alignment.centerLeft,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Available ingredients',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+            child: Container(
+              width: double.infinity,
+              child: Text(
+                'Available ingredients',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.left,
+              ),
             ),
+          ),
+          Expanded(
+            child:
+                ingredients.isEmpty
+                    ? const Center(
+                      child: Text(
+                        'no ingredients present, \nadd some ingredients...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 148, 148, 148),
+                        ),
+                      ),
+                    )
+                    : ListView.separated(
+                      padding: const EdgeInsets.all(15),
+                      itemCount: ingredients.length,
+                      separatorBuilder:
+                          (context, index) => const SizedBox(height: 15),
+                      itemBuilder: (context, index) {
+                        final ingredient = ingredients[index];
+                        return IngredientTile(
+                          ingredient,
+                          onDelete: () {
+                            ingredientsNotifier.removeIngredient(ingredient);
+                            _removeIngredientWithUndo(ingredient);
+                          },
+                        );
+                      },
+                    ),
           ),
         ],
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Scanner()),
           );
-
         },
         backgroundColor: const Color.fromARGB(255, 255, 106, 0),
         child: const Icon(Icons.add, color: Colors.white, size: 30),
