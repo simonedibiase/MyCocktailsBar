@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   google_fonts: ^6.2.1
   mobile_scanner: ^7.0.0
+  fluttertoast: ^8.2.1
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
