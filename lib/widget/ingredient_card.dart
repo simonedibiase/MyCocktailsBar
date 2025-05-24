@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:my_coctails_bar/providers/user_ingredient.dart';
 
-class IngredientCard extends StatefulWidget {
+class IngredientCard extends ConsumerStatefulWidget {
   const IngredientCard(this.ingredient, {required this.onDismiss, super.key});
 
   final Ingredient ingredient;
   final Function() onDismiss;
 
   @override
-  State<IngredientCard> createState() => _IngredientItemState();
+  ConsumerState<IngredientCard> createState() => _IngredientItemState();
 }
 
-class _IngredientItemState extends State<IngredientCard> {
+class _IngredientItemState extends ConsumerState<IngredientCard> {
   bool _isAdded = false;
   bool _isVisible = true;
 
@@ -21,6 +23,10 @@ class _IngredientItemState extends State<IngredientCard> {
       _isAdded = true; //mette la spunta verde
     });
 
+    await ref
+        .read(userIngredientsProvider.notifier)
+        .addIngredient(widget.ingredient);
+        
     await Future.delayed(Duration(seconds: 1));
 
     setState(() {
