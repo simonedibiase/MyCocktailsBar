@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
@@ -15,8 +14,8 @@ class Scanner extends StatefulWidget {
 
 class _MyState extends State<Scanner> {
   bool isDetecting = false;
-  bool showError = false;
   String resultScanner = "";
+  bool recentlyScanned = false;
 
   void remove() {
     setState(() {
@@ -29,7 +28,7 @@ class _MyState extends State<Scanner> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     Ingredient ingredient = Ingredient(
-      nome: 'Gin fabfpafib ajaib vndan vncdn avnp zcvnhnhzp',
+      nome: 'Gin ',
       imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
     );
 
@@ -40,16 +39,19 @@ class _MyState extends State<Scanner> {
         children: [
           MobileScanner(
             onDetect: (result) async {
+              if (recentlyScanned) return;
+
               if (result.barcodes.first.rawValue != resultScanner) {
+                recentlyScanned = true;
                 resultScanner = result.barcodes.first.rawValue!;
                 NetworkHelper networkHelper = NetworkHelper(
                   Uri.parse(
                     'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
                   ),
                 );
-                final response1 = await networkHelper.getData();
+                final response = await networkHelper.getData();
 
-                if (response1['status'] == 1) {
+                if (response['status'] == 1) {
                   setState(() {
                     isDetecting = true;
                   });
@@ -61,12 +63,14 @@ class _MyState extends State<Scanner> {
                     msg: "sorry, product not recognized",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
-                    timeInSecForIosWeb: 1,
                     backgroundColor: Colors.red,
                     textColor: Colors.white,
                     fontSize: 16.0,
                   );
                 }
+
+                await Future.delayed(Duration(seconds: 2));
+                recentlyScanned = false;
               }
             },
             overlayBuilder: (context, constraints) {
@@ -92,7 +96,6 @@ class _MyState extends State<Scanner> {
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
-                        //if (isDetecting) IngredientItem(ingredient),
                       ],
                     ),
                   ),
