@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
@@ -17,16 +18,21 @@ class IngredientCard extends ConsumerStatefulWidget {
 class _IngredientItemState extends ConsumerState<IngredientCard> {
   bool _isAdded = false;
   bool _isVisible = true;
+  bool _alreadyExist = false;
 
   void _handleAdd() async {
     setState(() {
       _isAdded = true; //mette la spunta verde
     });
 
-    await ref
-        .read(userIngredientsProvider.notifier)
-        .addIngredient(widget.ingredient);
-        
+    try {
+      await ref
+          .read(userIngredientsProvider.notifier)
+          .addIngredient(widget.ingredient);
+    } catch (e) {
+      _alreadyExist = true;
+    }
+
     await Future.delayed(Duration(seconds: 1));
 
     setState(() {
@@ -35,6 +41,18 @@ class _IngredientItemState extends ConsumerState<IngredientCard> {
 
     await Future.delayed(Duration(milliseconds: 300));
     widget.onDismiss(); //elimina il widget
+
+    if (_alreadyExist) {
+      Fluttertoast.showToast(
+        msg: "the product is already present",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: const Color.fromARGB(255, 255, 255, 255),
+        fontSize: 16.0,
+      );
+      _alreadyExist = false;
+    }
   }
 
   @override
