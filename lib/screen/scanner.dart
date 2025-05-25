@@ -28,6 +28,7 @@ class _MyState extends State<Scanner> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     Ingredient ingredient = Ingredient(
+      id: 1,
       nome: 'Gin ',
       imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
     );
@@ -41,38 +42,37 @@ class _MyState extends State<Scanner> {
             onDetect: (result) async {
               if (recentlyScanned) return;
 
-              if (result.barcodes.first.rawValue != resultScanner) {
-                recentlyScanned = true;
-                resultScanner = result.barcodes.first.rawValue!;
-                NetworkHelper networkHelper = NetworkHelper(
-                  Uri.parse(
-                    'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
-                  ),
+              recentlyScanned = true;
+              resultScanner = result.barcodes.first.rawValue!;
+              NetworkHelper networkHelper = NetworkHelper(
+                Uri.parse(
+                  'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
+                ),
+              );
+              final response = await networkHelper.getData();
+
+              if (response['status'] == 1) {
+                setState(() {
+                  isDetecting = true;
+                });
+              } else {
+                setState(() {
+                  isDetecting = false;
+                });
+                Fluttertoast.showToast(
+                  msg: "sorry, product not recognized",
+                  toastLength: Toast.LENGTH_SHORT,
+                  gravity: ToastGravity.BOTTOM,
+                  backgroundColor: Colors.red,
+                  textColor: Colors.white,
+                  fontSize: 16.0,
                 );
-                final response = await networkHelper.getData();
-
-                if (response['status'] == 1) {
-                  setState(() {
-                    isDetecting = true;
-                  });
-                } else {
-                  setState(() {
-                    isDetecting = false;
-                  });
-                  Fluttertoast.showToast(
-                    msg: "sorry, product not recognized",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.red,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-
-                await Future.delayed(Duration(seconds: 2));
-                recentlyScanned = false;
               }
+
+              await Future.delayed(Duration(seconds: 2));
+              recentlyScanned = false;
             },
+
             overlayBuilder: (context, constraints) {
               return Stack(
                 children: [

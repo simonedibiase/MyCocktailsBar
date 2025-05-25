@@ -17,6 +17,7 @@ class Ingredients extends ConsumerWidget {
     final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
 
     void _removeIngredientWithUndo(Ingredient ingredient) {
+      ingredientsNotifier.removeIngredient(ingredient);
 
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -71,12 +72,18 @@ class Ingredients extends ConsumerWidget {
                           (context, index) => const SizedBox(height: 15),
                       itemBuilder: (context, index) {
                         final ingredient = ingredients[index];
-                        return IngredientTile(
-                          ingredient,
-                          onDelete: () {
-                            ingredientsNotifier.removeIngredient(ingredient);
+                        return Dismissible(
+                          key: ValueKey(ingredient.id),
+                          direction: DismissDirection.endToStart,
+                          onDismissed: (direction) {
                             _removeIngredientWithUndo(ingredient);
                           },
+                          child: IngredientTile(
+                            ingredient,
+                            onDelete: () {
+                              _removeIngredientWithUndo(ingredient);
+                            },
+                          ),
                         );
                       },
                     ),

@@ -1,21 +1,11 @@
 class Ingredient {
-  int? id;
+  final int id;
   final String nome;
   final String imageUrl;
 
-  Ingredient({this.id, required this.nome, required this.imageUrl});
-
-  Ingredient.db({required this.id, required this.nome, required this.imageUrl});
+  Ingredient({required this.id, required this.nome, required this.imageUrl});
 
   Map<String, Object?> toMap() {
-    return {'nome': nome, 'url': imageUrl};
-  }
-
-  Ingredient copyWith({int? id, String? nome, String? imageUrl}) {
-    return Ingredient(
-      id: id ?? this.id,
-      nome: nome ?? this.nome,
-      imageUrl: imageUrl ?? this.imageUrl,
-    );
+    return {'id': id, 'nome': nome, 'url': imageUrl};
   }
 }

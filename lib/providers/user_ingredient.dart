@@ -22,7 +22,7 @@ class UserIngredientsNotifier extends StateNotifier<List<Ingredient>> {
               'url': imageUrl as String,
             }
             in ingredientMaps)
-          Ingredient.db(id: id, nome: nome, imageUrl: imageUrl),
+          Ingredient(id: id, nome: nome, imageUrl: imageUrl),
       ];
     } catch (e) {
       state = [];
@@ -32,14 +32,21 @@ class UserIngredientsNotifier extends StateNotifier<List<Ingredient>> {
 
   Future<void> addIngredient(Ingredient ingredient) async {
     final db = await DatabaseHelper.instance.database;
-    final id = await db.insert(
+
+    final existing = state.any((i) => i.id == ingredient.id);
+    if (existing){
+      throw Exception(
+        'product already present!',
+      );
+    } 
+    
+
+    await db.insert(
       'ingredients',
       ingredient.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
+      conflictAlgorithm: ConflictAlgorithm.ignore,
     );
-    final updatedIngredient = ingredient.copyWith(id: id);
-
-    state = [updatedIngredient, ...state];
+    state = [ingredient, ...state];
   }
 
   Future<void> removeIngredient(Ingredient ingredient) async {
