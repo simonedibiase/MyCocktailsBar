@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+**/GeneratedPluginRegistrant.swift
 
 # Symbolication related
 app.*.symbols
