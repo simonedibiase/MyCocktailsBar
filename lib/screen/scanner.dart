@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
+import 'package:my_coctails_bar/services/gemini.dart';
 import 'package:my_coctails_bar/services/networking.dart';
 import 'package:my_coctails_bar/widget/ingredient_card.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,6 +17,11 @@ class _MyState extends State<Scanner> {
   bool isDetecting = false;
   String resultScanner = "";
   bool recentlyScanned = false;
+  Ingredient ingredient = Ingredient(
+    id: 0,
+    nome: '',
+    imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
+  );
 
   void remove() {
     setState(() {
@@ -27,11 +33,6 @@ class _MyState extends State<Scanner> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    Ingredient ingredient = Ingredient(
-      id: 1,
-      nome: 'Gin ',
-      imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
-    );
 
     return Scaffold(
       appBar: AppBar(title: const Text("Barcode Scanner")),
@@ -49,7 +50,38 @@ class _MyState extends State<Scanner> {
                   'https://world.openfoodfacts.org/api/v0/product/$resultScanner.json',
                 ),
               );
+
               final response = await networkHelper.getData();
+              final keywords = response['product']['_keywords'];
+              String keywordString = keywords.join(', ');
+              //print("keywords: $keywordString");
+              final gemini = Gemini();
+              await gemini.initGemini();
+              var prova = await gemini.getIngredient(keywordString);
+              //print("OUTPUT DI GEMINI:  *******$prova******");
+
+              networkHelper = NetworkHelper(
+                Uri.parse(
+                  'https://www.thecocktaildb.com/api/json/v1/1/search.php?i=$prova',
+                ),
+              );
+
+              final responseCocktail = await networkHelper.getData();
+              
+              if (responseCocktail != 200) {
+                ingredient.nome =
+                    responseCocktail['ingredients'][0]['strIngredient'];
+
+                ingredient.id = int.parse(
+                  responseCocktail['ingredients'][0]['idIngredient'],
+                );
+
+                print('nome coktil: ${ingredient.nome}');
+                ingredient.imageUrl =
+                    'https://www.thecocktaildb.com/images/ingredients/${ingredient.nome}.png';
+              } else {
+                isDetecting = false;
+              }
 
               if (response['status'] == 1) {
                 setState(() {
@@ -99,11 +131,13 @@ class _MyState extends State<Scanner> {
                       ],
                     ),
                   ),
+
                   if (isDetecting)
                     Positioned(
                       top: screenHeight * 0.65,
                       left: screenWidth * 0.05,
                       right: screenWidth * 0.05,
+
                       child: IngredientCard(ingredient, onDismiss: remove),
                     ),
                 ],
