@@ -20,7 +20,7 @@ class _MyState extends State<Scanner> {
   Ingredient ingredient = Ingredient(
     id: 0,
     nome: '',
-    imageUrl: 'https://www.thecocktaildb.com/images/ingredients/gin.png',
+    imageUrl: '',
   );
 
   void remove() {
@@ -52,41 +52,40 @@ class _MyState extends State<Scanner> {
               );
 
               final response = await networkHelper.getData();
-              final keywords = response['product']['_keywords'];
-              String keywordString = keywords.join(', ');
-              //print("keywords: $keywordString");
-              final gemini = Gemini();
-              await gemini.initGemini();
-              var prova = await gemini.getIngredient(keywordString);
-              //print("OUTPUT DI GEMINI:  *******$prova******");
 
-              networkHelper = NetworkHelper(
-                Uri.parse(
-                  'https://www.thecocktaildb.com/api/json/v1/1/search.php?i=$prova',
-                ),
-              );
+              if (response['status'] == 1) {//se non riconosce il prodotto lo status code comunque è 200 ma il campo status è 1
+                final keywords = response['product']['_keywords'];
+                String keywordString = keywords.join(', ');
+                final gemini = Gemini();
+                await gemini.initGemini();
+                var outputGemini = await gemini.getIngredient(keywordString);
 
-              final responseCocktail = await networkHelper.getData();
-              
-              if (responseCocktail != 200) {
-                ingredient.nome =
-                    responseCocktail['ingredients'][0]['strIngredient'];
-
-                ingredient.id = int.parse(
-                  responseCocktail['ingredients'][0]['idIngredient'],
+                networkHelper = NetworkHelper(
+                  Uri.parse(
+                    'https://www.thecocktaildb.com/api/json/v1/1/search.php?i=$outputGemini',
+                  ),
                 );
 
-                print('nome coktil: ${ingredient.nome}');
-                ingredient.imageUrl =
-                    'https://www.thecocktaildb.com/images/ingredients/${ingredient.nome}.png';
-              } else {
-                isDetecting = false;
-              }
+                final responseCocktail = await networkHelper.getData();
 
-              if (response['status'] == 1) {
-                setState(() {
-                  isDetecting = true;
-                });
+                if (responseCocktail != 200) {
+                  ingredient.nome =
+                      responseCocktail['ingredients'][0]['strIngredient'];
+
+                  ingredient.id = int.parse(
+                    responseCocktail['ingredients'][0]['idIngredient'],
+                  );
+
+                  print('nome coktil: ${ingredient.nome}');
+                  ingredient.imageUrl =
+                      'https://www.thecocktaildb.com/images/ingredients/${ingredient.nome}.png';
+
+                  setState(() {
+                    isDetecting = true;
+                  });
+                } else {
+                  isDetecting = false;
+                }
               } else {
                 setState(() {
                   isDetecting = false;
