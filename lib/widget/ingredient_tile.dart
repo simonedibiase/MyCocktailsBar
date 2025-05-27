@@ -18,13 +18,13 @@ class IngredientTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
         style: TextStyle(fontSize: 18),
       ),
-      trailing: IconButton(
+      /*trailing: IconButton(
         icon: const Icon(
           Icons.delete,
           color: Color.fromARGB(255, 196, 196, 196),
         ),
         onPressed: onDelete,
-      ),
+      ),*/
     );
   }
 }
