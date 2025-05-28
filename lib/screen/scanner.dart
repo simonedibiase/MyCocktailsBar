@@ -17,11 +17,8 @@ class _MyState extends State<Scanner> {
   bool isDetecting = false;
   String resultScanner = "";
   bool recentlyScanned = false;
-  Ingredient ingredient = Ingredient(
-    id: 0,
-    nome: '',
-    imageUrl: '',
-  );
+  bool showError = false;
+  Ingredient ingredient = Ingredient(id: -1, nome: '', imageUrl: '');
 
   void remove() {
     setState(() {
@@ -53,7 +50,8 @@ class _MyState extends State<Scanner> {
 
               final response = await networkHelper.getData();
 
-              if (response['status'] == 1) {//se non riconosce il prodotto lo status code comunque è 200 ma il campo status è 1
+              if (response['status'] == 1 && showError == false) {
+                //se non riconosce il prodotto lo status code comunque è 200 ma il campo status è 1
                 final keywords = response['product']['_keywords'];
                 String keywordString = keywords.join(', ');
                 final gemini = Gemini();
@@ -68,7 +66,7 @@ class _MyState extends State<Scanner> {
 
                 final responseCocktail = await networkHelper.getData();
 
-                if (responseCocktail != 200) {
+                if (responseCocktail['ingredients'] != null) {
                   ingredient.nome =
                       responseCocktail['ingredients'][0]['strIngredient'];
 
@@ -84,10 +82,13 @@ class _MyState extends State<Scanner> {
                     isDetecting = true;
                   });
                 } else {
-                  isDetecting = false;
+                  setState(() {
+                    showError = true;
+                  });
                 }
               } else {
                 setState(() {
+                  showError = false;
                   isDetecting = false;
                 });
                 Fluttertoast.showToast(
