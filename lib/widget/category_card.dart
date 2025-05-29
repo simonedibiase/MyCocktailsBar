@@ -1,20 +1,32 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_coctails_bar/providers/user_ingredient.dart';
+import 'package:my_coctails_bar/services/gemini.dart';
 
-class CategoryCard extends StatelessWidget {
+class CategoryCard extends ConsumerWidget {
   final String image;
   final String label;
 
   const CategoryCard({super.key, required this.image, required this.label});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var screenHeight = MediaQuery.of(context).size.height;
+    final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
+    final ingredients = ref.watch(userIngredientsProvider);
+
     return InkWell(
       //fornisce un effetto visivo quando viene toccato
-      onTap: () {
-        //creazione ricetta
+      onTap: () async {
+        final gemini = Gemini();
+        await gemini.initGemini();
+        final ingredientNames =
+            ingredients.map((ingredient) => ingredient.nome).toList();
+        final ingredientString = ingredientNames.join(', ');
+        var outputGemini = await gemini.getCocktail(ingredientString, label);
+        print('****OUTPUT DI GEMINI: $outputGemini');
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
