@@ -16,17 +16,33 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'cocktails.db');
 
-    //await deleteDatabase(path);
-
     return await openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS ingredients (
             id INTEGER PRIMARY KEY,
             nome TEXT,
             url TEXT
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS fav_cocktails (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            recipe TEXT,
+          )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS fav_ingredients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            url TEXT,
+            FOREIGN KEY (recipe_id) REFERENCES fav_recipes (id) on DELETE CASCADE
           )
         ''');
       },
