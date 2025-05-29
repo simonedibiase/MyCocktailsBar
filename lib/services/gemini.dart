@@ -33,8 +33,8 @@ class Gemini {
   GenerativeModel get model => _model;
 
   Future<String> getIngredient(String keywords) async {
-    //Gemini gemini = Gemini();
-    // GenerativeModel model = gemini.model;
+    Gemini gemini = Gemini();
+    GenerativeModel model = gemini.model;
 
     var prompt = '''
         Impersonate a cocktail expert. Your task is to analyze the characteristics of an ingredient used in cocktails and tell me which ingredient it is.
@@ -94,5 +94,84 @@ class Gemini {
     final response = await model.generateContent(content);
     print('*****${response.text?.trim()}********');
     return response.text?.trim() ?? '{"Error": "Nessuna risposta dal modello"}';
+  }
+
+  void updateSchema(Schema newSchema) {
+    _model = GenerativeModel(
+      model: 'gemini-1.5-flash',
+      apiKey: dotenv.env['API_KEY']!,
+      generationConfig: GenerationConfig(
+        temperature: 1,
+        maxOutputTokens: 1000,
+        responseMimeType: 'application/json',
+        responseSchema: newSchema,
+      ),
+    );
+  }
+
+  Schema _setSchemaCocktail() {
+    return Schema(
+      SchemaType.object,
+      description: "Ricetta da preparare",
+      requiredProperties: ["Error", "title", "ingredients", "recipe"],
+      properties: {
+        "Error": Schema(
+          SchemaType.string,
+          description: "Descrizione dell'errore",
+          nullable: true,
+        ),
+        "title": Schema(
+          SchemaType.string,
+          description: "Nome del cocktail.",
+          nullable: true,
+        ),
+        "ingredients": Schema(
+          SchemaType.array,
+          description: "Lista di ingredienti",
+          items: Schema(
+            SchemaType.object,
+            properties: {
+              "name": Schema(
+                SchemaType.string,
+                description: "Nome dell'ingrediente",
+                nullable: true,
+              ),
+              /*"url": Schema(
+                SchemaType.string,
+                description: "URL foto dell'ingrediente",
+                nullable: true,
+              ),*/
+            },
+          ),
+        ),
+        "recipe": Schema(
+          SchemaType.string,
+          description: "Ricetta per la preparazione del cocktail",
+          nullable: true,
+        ),
+      },
+    );
+  }
+
+  Future<String> getCocktail(String ingredients, String category) async {
+    Gemini gemini = Gemini();
+    updateSchema(_setSchemaCocktail());
+    GenerativeModel model = gemini.model;
+    print('INGREDINTI DISPONIBILI: *$ingredients**');
+
+    var prompt =
+        '''Sei uno barman esperto di alcolici che ha viaggiato per il mondo e che conosce tutti i coktail tipici di ogni paese.\n
+            Voglio che tu suggerisca un cocktail da preparare, nello specifico devi creare un $category.\n\n
+            gli ingredienti che hai a disposizione sono i seguenti: $ingredients, non devi usare altri ingredienti oltre quelli a disposizione.
+            La prima cosa che devi fare è controllare che gli ingredienti che ho a disposizione sono sufficienti per la preparazione, se non ho ingredienti o se non sono sufficienti\n
+            segnalalo con un messaggio di errore specificano che gli ingredienti non sono sufficienti all' interno del campo Error, e non generarmi un cocktail e restituiscimi null per il resto delle informazioni.\n\n
+            
+            Altrimenti, solo se i miei ingredienti sono sufficienti, Voglio che tu mi dia il titolo di un coktail , gli ingredienti con i rispettivi url delle foto e la ricetta per la reparazione del cocktail. Se hai trovato aleno un'errore nei dati allora descrivimi l'errore, altrimenti
+            imposta l'errore a null''';
+
+    final content = [Content.text(prompt)];
+    final response = await model.generateContent(content);
+
+    return response.text!;
   }
 }
