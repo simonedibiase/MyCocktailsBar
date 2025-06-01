@@ -111,7 +111,7 @@ class _CocktailState extends ConsumerState<Cocktail> {
           ),
         ),
       ),
-      bottomSheet: Container(
+      bottomNavigationBar: Container(
         color: Colors.white,
         padding: const EdgeInsets.only(top: 0, bottom: 25),
         child: Row(
