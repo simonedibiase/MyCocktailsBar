@@ -18,31 +18,13 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 7,
+      version: 9,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS ingredients (
             id INTEGER PRIMARY KEY,
             nome TEXT,
             url TEXT
-          )
-        ''');
-
-        await db.execute('''
-          CREATE TABLE IF NOT EXISTS fav_cocktails (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            recipe TEXT,
-          )
-        ''');
-
-        await db.execute('''
-          CREATE TABLE IF NOT EXISTS fav_ingredients (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            recipe_id INTEGER NOT NULL,
-            name TEXT NOT NULL,
-            url TEXT,
-            FOREIGN KEY (recipe_id) REFERENCES fav_recipes (id) on DELETE CASCADE
           )
         ''');
       },
