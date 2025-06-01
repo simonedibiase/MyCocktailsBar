@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
+import 'package:my_coctails_bar/screen/category.dart';
+import 'package:my_coctails_bar/screen/cocktail.dart';
 import 'package:my_coctails_bar/services/gemini.dart';
 
 class CategoryCard extends ConsumerWidget {
@@ -14,7 +18,6 @@ class CategoryCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var screenHeight = MediaQuery.of(context).size.height;
-    final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
     final ingredients = ref.watch(userIngredientsProvider);
 
     return InkWell(
@@ -22,11 +25,62 @@ class CategoryCard extends ConsumerWidget {
       onTap: () async {
         final gemini = Gemini();
         await gemini.initGemini();
+
         final ingredientNames =
             ingredients.map((ingredient) => ingredient.nome).toList();
         final ingredientString = ingredientNames.join(', ');
         var outputGemini = await gemini.getCocktail(ingredientString, label);
-        print('****OUTPUT DI GEMINI: $outputGemini');
+
+        Map<String, dynamic> cocktailData = {};
+        List<dynamic> cocktailIngredients = [];
+
+        try {
+          cocktailData = jsonDecode(outputGemini.text ?? '{}');
+          cocktailIngredients =
+              cocktailData['ingredients'] as List<dynamic>? ?? [];
+        } catch (e) {
+          print('Errore nel parsing JSON: $e');
+          cocktailData = {"Error": "Risposta non valida"};
+        }
+
+        bool ingredientCeck = cocktailIngredients.every((ingredient) {
+          final ingredientName = ingredient['name']?.toString().toLowerCase();
+          return ingredients.any(
+            (userIng) => userIng.nome.toLowerCase() == ingredientName,
+          );
+        });
+
+        if (cocktailData['Error'] != null) {
+          Fluttertoast.showToast(
+            msg:
+                "sorry, not enough ingredients.\n Try adding more ingredients...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } else {
+          if (ingredientCeck) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        Cocktail(cocktail: cocktailData, category: label),
+              ),
+            );
+          } else {
+            Fluttertoast.showToast(
+              msg: "Sorry, there was an error.\nPlease try again..",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0,
+            );
+          }
+        }
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
