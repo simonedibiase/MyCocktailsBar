@@ -34,13 +34,10 @@ class UserIngredientsNotifier extends StateNotifier<List<Ingredient>> {
     final db = await DatabaseHelper.instance.database;
 
     final existing = state.any((i) => i.id == ingredient.id);
-    if (existing){
-      throw Exception(
-        'product already present!',
-      );
+    if (existing) {
+      throw Exception('product already present!');
     } 
     
-
     await db.insert(
       'ingredients',
       ingredient.toMap(),
@@ -55,6 +52,29 @@ class UserIngredientsNotifier extends StateNotifier<List<Ingredient>> {
 
     state = state.where((i) => i.id != ingredient.id).toList();
   }
+}
+
+Future<List<Ingredient>> fetchIngredientsFromDb(List<dynamic> names) async {
+  final db = await DatabaseHelper.instance.database;
+
+  List<Ingredient> completeIngredients = [];
+
+  for (var ingredient in names) {
+    if (ingredient.containsKey('name')) {
+      final name = (ingredient['name'] as String).toLowerCase().trim();
+
+      final result = await db.query(
+        'ingredients',
+        where: 'LOWER(TRIM(nome)) = ?',
+        whereArgs: [name],
+      );
+
+      if (result.isNotEmpty) {
+        completeIngredients.add(Ingredient.fromMap(result.first));
+      }
+    }
+  }
+  return completeIngredients;
 }
 
 final userIngredientsProvider =
