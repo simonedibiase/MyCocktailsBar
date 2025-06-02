@@ -23,6 +23,8 @@ class _CocktailState extends ConsumerState<Cocktail> {
   String? category;
   List<Ingredient> completeIngredients = [];
   List<dynamic> cocktailList = [];
+  bool isLoading = false;
+  bool coktailSuccessivo = true;
 
   get gemini => null;
 
@@ -57,6 +59,7 @@ class _CocktailState extends ConsumerState<Cocktail> {
           vertical: screenHeight * 0.03,
         ),
         child: SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: 200.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -111,98 +114,138 @@ class _CocktailState extends ConsumerState<Cocktail> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        padding: const EdgeInsets.only(top: 0, bottom: 25),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 60,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 255, 106, 0),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                ),
-                onPressed: () async {
-                  final gemini = Gemini();
-                  await gemini.initGemini();
-
-                  final ingredientNames =
-                      ingredients.map((ingredient) => ingredient.nome).toList();
-                  final ingredientString = ingredientNames.join(', ');
-                  var outputGemini = await gemini.getNewCocktail(
-                    ingredientString,
-                    widget.category,
-                    cocktailList,
-                  );
-
-                  Map<String, dynamic> cocktailData = {};
-                  List<dynamic> cocktailIngredients = [];
-
-                  try {
-                    cocktailData = jsonDecode(outputGemini.text ?? '{}');
-                    cocktailIngredients =
-                        cocktailData['ingredients'] as List<dynamic>? ?? [];
-                  } catch (e) {
-                    print('Errore nel parsing JSON: $e');
-                    cocktailData = {"Error": "Risposta non valida"};
-                  }
-
-                  bool ingredientCeck = cocktailIngredients.every((ingredient) {
-                    final ingredientName =
-                        ingredient['name']?.toString().toLowerCase();
-                    return ingredients.any(
-                      (userIng) => userIng.nome.toLowerCase() == ingredientName,
-                    );
-                  });
-
-                  if (cocktailData['Error'] != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        duration: const Duration(seconds: 4),
-                        content: Text(
-                          'There are not enough ingredients to generate a new cocktail.\ntry entering more ingredients...',
-                          style: Theme.of(context).textTheme.bodySmall,
+      bottomSheet:
+          coktailSuccessivo
+              ? Container(
+                color: Colors.white,
+                padding: const EdgeInsets.only(top: 10, bottom: 25),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 60,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromARGB(255, 255, 106, 0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
                         ),
-                      ),
-                    );
-                  } else {
-                    if (ingredientCeck) {
-                      setState(() {
-                        cocktail = cocktailData;
-                        loadIngredients();
-                        cocktailList.add(cocktailData);
-                      });
-                    } else {
-                      Fluttertoast.showToast(
-                        msg: "Sorry, there was an error.\nPlease try again..",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.CENTER,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0,
-                      );
-                    }
-                  }
-                },
+                        onPressed:
+                            isLoading
+                                ? null
+                                : () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
 
-                child: Text(
-                  'Generate a new ${widget.category.toLowerCase()} ',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+                                  final gemini = Gemini();
+                                  await gemini.initGemini();
+
+                                  final ingredientNames =
+                                      ingredients
+                                          .map((ingredient) => ingredient.nome)
+                                          .toList();
+                                  final ingredientString = ingredientNames.join(
+                                    ', ',
+                                  );
+                                  var outputGemini = await gemini
+                                      .getNewCocktail(
+                                        ingredientString,
+                                        widget.category,
+                                        cocktailList,
+                                      );
+
+                                  Map<String, dynamic> cocktailData = {};
+                                  List<dynamic> cocktailIngredients = [];
+
+                                  try {
+                                    cocktailData = jsonDecode(
+                                      outputGemini.text ?? '{}',
+                                    );
+                                    cocktailIngredients =
+                                        cocktailData['ingredients']
+                                            as List<dynamic>? ??
+                                        [];
+                                  } catch (e) {
+                                    print('Errore nel parsing JSON: $e');
+                                    cocktailData = {
+                                      "Error": "Risposta non valida",
+                                    };
+                                  }
+
+                                  bool ingredientCeck = cocktailIngredients
+                                      .every((ingredient) {
+                                        final ingredientName =
+                                            ingredient['name']
+                                                ?.toString()
+                                                .toLowerCase();
+                                        return ingredients.any(
+                                          (userIng) =>
+                                              userIng.nome.toLowerCase() ==
+                                              ingredientName,
+                                        );
+                                      });
+
+                                  if (cocktailData['Error'] != null) {
+                                    coktailSuccessivo = false;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'There are not enough ingredients to generate a new cocktail.\ntry entering more ingredients...',
+                                          style:
+                                              Theme.of(
+                                                context,
+                                              ).textTheme.bodySmall,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    if (ingredientCeck) {
+                                      setState(() {
+                                        cocktail = cocktailData;
+                                        loadIngredients();
+                                        cocktailList.add(cocktailData);
+                                      });
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg:
+                                            "Sorry, there was an error.\nPlease try again..",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.CENTER,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0,
+                                      );
+                                    }
+                                  }
+                                  setState(() {
+                                    isLoading = false;
+                                  });
+                                },
+
+                        child:
+                            isLoading
+                                ? CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                )
+                                : Text(
+                                  'Generate a new ${widget.category.toLowerCase()} ',
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
+              )
+              : SizedBox.shrink(),//widget che occupa spazio zero, non disegna nulla
     );
   }
 }
