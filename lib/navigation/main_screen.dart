@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_coctails_bar/screen/cocktails.dart';
+import 'package:my_coctails_bar/screen/category.dart';
 import 'package:my_coctails_bar/screen/ingredients.dart';
 
 class MainScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        body: [Cocktails(), Ingredients()][currentPageIndex],
+        body: [Category(), Ingredients()][currentPageIndex],
     );
   }
 }

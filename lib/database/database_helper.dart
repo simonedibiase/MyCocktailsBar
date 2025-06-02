@@ -16,11 +16,9 @@ class DatabaseHelper {
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'cocktails.db');
 
-    //await deleteDatabase(path);
-
     return await openDatabase(
       path,
-      version: 6,
+      version: 9,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS ingredients (

@@ -6,7 +6,7 @@ class MySearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double heightBox = (MediaQuery.of(context).size.height * 0.4);
+    final double heightBox = (MediaQuery.of(context).size.height * 0.35);
     return SizedBox(
       width: double.infinity,
       height: heightBox,
