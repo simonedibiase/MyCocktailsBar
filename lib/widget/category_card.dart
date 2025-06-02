@@ -12,8 +12,16 @@ import 'package:my_coctails_bar/services/gemini.dart';
 class CategoryCard extends ConsumerWidget {
   final String image;
   final String label;
+  final bool isLoading;
+  final Function(bool) onLoadingChanged;
 
-  const CategoryCard({super.key, required this.image, required this.label});
+  const CategoryCard({
+    super.key,
+    required this.image,
+    required this.label,
+    required this.isLoading,
+    required this.onLoadingChanged,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -23,6 +31,8 @@ class CategoryCard extends ConsumerWidget {
     return InkWell(
       //fornisce un effetto visivo quando viene toccato
       onTap: () async {
+        onLoadingChanged(true);
+
         final gemini = Gemini();
         await gemini.initGemini();
 
@@ -81,6 +91,7 @@ class CategoryCard extends ConsumerWidget {
             );
           }
         }
+        onLoadingChanged(false);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

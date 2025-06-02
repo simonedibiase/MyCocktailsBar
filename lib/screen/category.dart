@@ -5,11 +5,24 @@ import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/widget/category_card.dart';
 import 'package:my_coctails_bar/widget/my_search_bar.dart';
 
-class Category extends ConsumerWidget {
+class Category extends ConsumerStatefulWidget  {
   const Category({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<Category> createState() => _CategoryState();
+}
+
+class _CategoryState extends ConsumerState<Category> {
+  bool isLoading = false;
+
+  handleLoadingChanged(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final ingredients = ref.watch(userIngredientsProvider);
@@ -49,22 +62,40 @@ class Category extends ConsumerWidget {
                   crossAxisCount: 2,
                   childAspectRatio: 2 / 1.95,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: const [
-                    CategoryCard(image: 'dolce.jpeg', label: 'Sweet cocktail'),
-                    CategoryCard(image: 'amaro.jpg', label: 'Bitter cocktail'),
-                    CategoryCard(image: 'shot.jpg', label: 'Shot'),
-                    CategoryCard(image: 'analcolico.jpg', label: 'Mocktail'),
+                  children: [
+                    CategoryCard(image: 'dolce.jpeg', label: 'Sweet cocktail', 
+                      isLoading: false, onLoadingChanged: handleLoadingChanged,
+                    ),
+                    CategoryCard(image: 'amaro.jpg', label: 'Bitter cocktail', isLoading: false,
+                      onLoadingChanged: handleLoadingChanged,
+                    ),
+                    CategoryCard(image: 'shot.jpg', label: 'Shot', isLoading: false,
+                      onLoadingChanged: handleLoadingChanged,
+                    ),
+                    CategoryCard(image: 'analcolico.jpg', label: 'Mocktail', isLoading: false,
+                      onLoadingChanged: handleLoadingChanged,
+                    ),
                   ],
                 ),
 
                 // Layer grigio se ingredients è vuoto
                 if (ingredients.isEmpty)
                   Container(color: const Color.fromARGB(200, 255, 255, 255)),
+
+                 if (isLoading)
+                  Container(
+                    color: const Color.fromARGB(200, 255, 255, 255),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Color.fromARGB(255, 255, 106, 0),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
-        ],
+        ],      
       ),
+     
     );
   }
 }
