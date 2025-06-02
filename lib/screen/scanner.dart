@@ -18,11 +18,13 @@ class _MyState extends State<Scanner> {
   String resultScanner = "";
   bool recentlyScanned = false;
   bool showError = false;
-  Ingredient ingredient = Ingredient(id: -1, nome: '', imageUrl: '');
+
+  Ingredient? ingredient;
 
   void remove() {
     setState(() {
       isDetecting = false;
+      ingredient = null;
     });
   }
 
@@ -30,6 +32,7 @@ class _MyState extends State<Scanner> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    //Ingredient newIngredient;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Barcode Scanner")),
@@ -67,19 +70,17 @@ class _MyState extends State<Scanner> {
                 final responseCocktail = await networkHelper.getData();
 
                 if (responseCocktail['ingredients'] != null) {
-                  ingredient.nome =
-                      responseCocktail['ingredients'][0]['strIngredient'];
+                  final ingData = responseCocktail['ingredients'][0];
 
-                  ingredient.id = int.parse(
-                    responseCocktail['ingredients'][0]['idIngredient'],
+                  final newIngredient = Ingredient(
+                    id: int.parse(ingData['idIngredient']),
+                    nome: ingData['strIngredient'],
+                    imageUrl:
+                        'https://www.thecocktaildb.com/images/ingredients/${ingData['strIngredient']}.png',
                   );
-
-                  print('nome coktil: ${ingredient.nome}');
-                  ingredient.imageUrl =
-                      'https://www.thecocktaildb.com/images/ingredients/${ingredient.nome}.png';
-
                   setState(() {
                     isDetecting = true;
+                    ingredient = newIngredient;
                   });
                 } else {
                   setState(() {
@@ -132,13 +133,13 @@ class _MyState extends State<Scanner> {
                     ),
                   ),
 
-                  if (isDetecting)
+                  if (isDetecting && ingredient != null)
                     Positioned(
                       top: screenHeight * 0.65,
                       left: screenWidth * 0.05,
                       right: screenWidth * 0.05,
 
-                      child: IngredientCard(ingredient, onDismiss: remove),
+                      child: IngredientCard(ingredient!, onDismiss: remove),
                     ),
                 ],
               );
