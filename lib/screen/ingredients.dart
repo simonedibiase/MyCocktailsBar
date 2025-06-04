@@ -4,7 +4,7 @@ import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/screen/scanner.dart';
 import 'package:my_coctails_bar/widget/ingredient_tile.dart';
-import 'package:my_coctails_bar/widget/my_search_bar.dart';
+import 'package:my_coctails_bar/widget/header.dart';
 
 class Ingredients extends ConsumerWidget {
   const Ingredients({super.key});
@@ -41,7 +41,7 @@ class Ingredients extends ConsumerWidget {
     return Scaffold(
       body: Column(
         children: [
-          MySearchBar(),
+          Header(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
             child: Container(

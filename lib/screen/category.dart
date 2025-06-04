@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/widget/category_card.dart';
-import 'package:my_coctails_bar/widget/my_search_bar.dart';
+import 'package:my_coctails_bar/widget/header.dart';
 
 class Category extends ConsumerStatefulWidget  {
   const Category({super.key});
@@ -31,7 +31,7 @@ class _CategoryState extends ConsumerState<Category> {
     return Scaffold(
       body: Column(
         children: [
-          MySearchBar(),
+          Header(),
 
           Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
