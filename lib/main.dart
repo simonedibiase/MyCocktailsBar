@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_coctails_bar/navigation/main_screen.dart';
 import 'package:my_coctails_bar/screen/first_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+Future<void> main() async {
+  
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(ProviderScope(child: MyApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstTime = prefs.getBool('isFirstTime') ?? true;
+
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  runApp(ProviderScope(child: MyApp(isFirstTime: isFirstTime)));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({super.key, required this.isFirstTime});
+
+  final bool isFirstTime;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +89,7 @@ class MyApp extends StatelessWidget {
       ),
     );
 
-    return MaterialApp(theme: themedApp, home: const FirstScreen());
+    return MaterialApp(theme: themedApp, home: isFirstTime ? const FirstScreen() : const MainScreen(),
+    );
   }
 }

@@ -18,11 +18,26 @@ dependencies:
   path: ^1.9.1
   flutter_dotenv: ^5.2.1
   google_generative_ai: ^0.4.7
+  shared_preferences_android: ^2.4.10
+  shared_preferences: ^2.5.3
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/logo_app.png
+
+flutter_native_splash:
+  color: "#fcfbf8"
+  image: assets/logo_app.png
+  android: true
+  ios: true
 
 flutter:
   uses-material-design: true

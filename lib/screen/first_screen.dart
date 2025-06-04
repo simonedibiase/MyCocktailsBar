@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_coctails_bar/navigation/main_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FirstScreen extends StatelessWidget {
   const FirstScreen({super.key});
@@ -35,10 +36,15 @@ class FirstScreen extends StatelessWidget {
                 shadowColor: Colors.transparent, // Nessuna ombra
                 elevation: 0, // Nessuna elevazione
               ),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setBool('isFirstTime', false);
+
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const MainScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const MainScreen(),
+                  ), //rimuove FirstScreen dallo stack
                 );
               },
               child: const Icon(
