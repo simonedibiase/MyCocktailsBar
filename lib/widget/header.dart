@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class MySearchBar extends StatelessWidget {
-  const MySearchBar({super.key});
+class Header extends StatelessWidget {
+  const Header({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class MySearchBar extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          Positioned(
+          /*Positioned(
             top: heightBox * 0.73,
             left: 0,
             right: 0,
@@ -57,7 +57,7 @@ class MySearchBar extends StatelessWidget {
                 },
               ),
             ),
-          ),
+          ),*/
         ],
       ),
     );
