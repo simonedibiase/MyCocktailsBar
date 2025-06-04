@@ -18,6 +18,8 @@ dependencies:
   path: ^1.9.1
   flutter_dotenv: ^5.2.1
   google_generative_ai: ^0.4.7
+  shared_preferences_android: ^2.4.10
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:
