@@ -1,3 +1,4 @@
+import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -29,5 +30,28 @@ class DatabaseHelper {
         ''');
       },
     );
+  }
+
+  Future<List<Ingredient>> fetchIngredientsFromDb(List<dynamic> names) async {
+    final db = await DatabaseHelper.instance.database;
+
+    List<Ingredient> completeIngredients = [];
+
+    for (var ingredient in names) {
+      if (ingredient.containsKey('name')) {
+        final name = (ingredient['name'] as String).toLowerCase().trim();
+
+        final result = await db.query(
+          'ingredients',
+          where: 'LOWER(TRIM(nome)) = ?',
+          whereArgs: [name],
+        );
+
+        if (result.isNotEmpty) {
+          completeIngredients.add(Ingredient.fromMap(result.first));
+        }
+      }
+    }
+    return completeIngredients;
   }
 }
