@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:my_coctails_bar/database/database_helper.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/services/gemini.dart';
@@ -37,7 +38,8 @@ class _CocktailState extends ConsumerState<Cocktail> {
   }
 
   Future<void> loadIngredients() async {
-    final ingredients = await fetchIngredientsFromDb(cocktail['ingredients']);
+    final ingredients = await await DatabaseHelper.instance
+        .fetchIngredientsFromDb(cocktail['ingredients']);
     setState(() {
       completeIngredients = ingredients;
     });
