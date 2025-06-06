@@ -5,20 +5,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_coctails_bar/database/database_helper.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
+import 'package:my_coctails_bar/providers/fav_cocktail.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/services/gemini.dart';
 import 'package:my_coctails_bar/widget/ingredient_tile.dart';
+import 'package:my_coctails_bar/models/cocktail.dart';
 
-class Cocktail extends ConsumerStatefulWidget {
-  const Cocktail({super.key, required this.cocktail, required this.category});
+class CocktailScreen extends ConsumerStatefulWidget {
+  const CocktailScreen({
+    super.key,
+    required this.cocktail,
+    required this.category,
+  });
   final Map<String, dynamic> cocktail;
   final String category;
 
   @override
-  ConsumerState<Cocktail> createState() => _CocktailState();
+  ConsumerState<CocktailScreen> createState() => _CocktailScreenState();
 }
 
-class _CocktailState extends ConsumerState<Cocktail> {
+class _CocktailScreenState extends ConsumerState<CocktailScreen> {
   var cocktail;
   bool isFavorite = false;
   String? category;
@@ -81,12 +87,29 @@ class _CocktailState extends ConsumerState<Cocktail> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(
-                      Icons.favorite_border,
-                      color: Colors.red,
-                      size: 35,
-                    ),
-                    onPressed: () {},
+                    icon:
+                        isFavorite
+                            ? Icon(Icons.favorite, color: Colors.red, size: 35)
+                            : Icon(
+                              Icons.favorite_border,
+                              color: Colors.red,
+                              size: 35,
+                            ),
+                    onPressed: () async {
+                      final newCocktail = await Cocktail.fromMap(cocktail);
+                      setState(() {
+                        isFavorite = !isFavorite;
+                      });
+                      if (isFavorite) {
+                        ref
+                            .read(favoriteCocktailsProvider.notifier)
+                            .addCocktail(newCocktail);
+                      } else {
+                        ref
+                            .read(favoriteCocktailsProvider.notifier)
+                            .removeCocktail(newCocktail.title);
+                      }
+                    },
                   ),
                 ],
               ),
@@ -208,6 +231,7 @@ class _CocktailState extends ConsumerState<Cocktail> {
                                         cocktail = cocktailData;
                                         loadIngredients();
                                         cocktailList.add(cocktailData);
+                                        isFavorite = false;
                                       });
                                     } else {
                                       Fluttertoast.showToast(
@@ -247,7 +271,7 @@ class _CocktailState extends ConsumerState<Cocktail> {
                   ],
                 ),
               )
-              : SizedBox.shrink(),//widget che occupa spazio zero, non disegna nulla
+              : SizedBox.shrink(), //widget che occupa spazio zero, non disegna nulla
     );
   }
 }
