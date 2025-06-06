@@ -1,15 +1,14 @@
+import 'dart:convert';
+
+import 'package:my_coctails_bar/database/database_helper.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
 
 class Cocktail {
-  final int? id;
-  final String? error;
   final String title;
   final String description;
   final List<Ingredient> ingredients;
 
-  Cocktail(Map<String, dynamic> cocktailData, {
-    required this.id,
-    this.error,
+  Cocktail({
     required this.title,
     required this.description,
     required this.ingredients,
@@ -17,10 +16,18 @@ class Cocktail {
 
   Map<String, Object?> toMap() {
     return {
-      'error ': error,
       'title': title,
       'description': description,
-      'ingredients' : ingredients,
     };
+  }
+
+  static Future<Cocktail> fromMap(Map<String, Object?> map) async {
+    return Cocktail(
+      title: map['title'] as String,
+      description: map['recipe'] as String,
+      ingredients: await DatabaseHelper.getIngredientsFavCocktail(
+        map['title'] as String,
+      ),
+    );
   }
 }
