@@ -80,20 +80,26 @@ class DatabaseHelper {
     return completeIngredients;
   }
 
-  static Future<List<Ingredient>> getIngredientsFavCocktail(
-    String title,
+  static Future<List<Ingredient>> getMatchingIngredientst(
+    List<Map<String, String>> ingredientsList,
   ) async {
     final db = await instance.database;
-    final results = await db.rawQuery(
-      '''
-      SELECT fav_ingredients.*
-      FROM fav_ingredients
-      JOIN cocktail_ingredient ON fav_ingredients.id = cocktail_ingredient.ingredient_id
-      WHERE cocktail_ingredient.cocktail_title = ?
-    ''',
-      [title],
-    );
+    List<Ingredient> matchedIngredients = [];
 
-    return results.map((map) => Ingredient.fromMap(map)).toList();
+    for (final ingredient in ingredientsList) {
+      final name = ingredient['name']!.toLowerCase().trim();
+
+      final result = await db.query(
+        'ingredients',
+        where: 'LOWER(TRIM(nome)) = ?',
+        whereArgs: [name],
+      );
+
+      if (result.isNotEmpty) {
+        matchedIngredients.add(Ingredient.fromMap(result.first));
+      }
+    }
+
+    return matchedIngredients;
   }
 }
