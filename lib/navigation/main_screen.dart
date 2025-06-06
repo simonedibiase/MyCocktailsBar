@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_coctails_bar/screen/category.dart';
+import 'package:my_coctails_bar/screen/fav_cocktail.dart';
 import 'package:my_coctails_bar/screen/ingredients.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,26 +16,27 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-          height: MediaQuery.of(context).size.height * 0.075,
-          selectedIndex: currentPageIndex,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.local_bar),
-              label: 'Cocktail',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.list_alt),
-              label: 'Ingredients',
-            ),
-          ],
-        ),
-        body: [Category(), Ingredients()][currentPageIndex],
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        height: MediaQuery.of(context).size.height * 0.075,
+        selectedIndex: currentPageIndex,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.list_alt),
+            label: 'Ingredients',
+          ),
+          NavigationDestination(icon: Icon(Icons.local_bar), label: 'Cocktail'),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            label: 'favorite',
+          ),
+        ],
+      ),
+      body: [Ingredients(), Category(), FavCocktail()][currentPageIndex],
     );
   }
 }
