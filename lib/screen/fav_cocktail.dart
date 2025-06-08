@@ -41,7 +41,7 @@ class FavCocktail extends ConsumerWidget {
                 cocktails.isEmpty
                     ? const Center(
                       child: Text(
-                        'There are no cocktails added\nto your favorites',
+                        'There are no cocktails\n added to your favorites',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Color.fromARGB(255, 148, 148, 148),
