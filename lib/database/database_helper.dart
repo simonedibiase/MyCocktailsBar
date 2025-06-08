@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 100,
+      version: 105,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS ingredients (
@@ -39,18 +39,19 @@ class DatabaseHelper {
 
         await db.execute('''
           CREATE TABLE IF NOT EXISTS fav_cocktail (
-            title TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
             description TEXT
           )
         ''');
 
         await db.execute('''
           CREATE TABLE IF NOT EXISTS cocktail_ingredient (
-            cocktail_title TEXT,
+            cocktail_id INTEGER,
             ingredient_id INTEGER,
-            FOREIGN KEY (cocktail_title) REFERENCES fav_cocktail(title),
+            FOREIGN KEY (cocktail_id) REFERENCES fav_cocktail(id),
             FOREIGN KEY (ingredient_id) REFERENCES fav_ingredients(id),
-            PRIMARY KEY (cocktail_title, ingredient_id)
+            PRIMARY KEY (cocktail_id, ingredient_id)
           )
         ''');
       },
@@ -80,7 +81,7 @@ class DatabaseHelper {
     return completeIngredients;
   }
 
-  static Future<List<Ingredient>> getMatchingIngredientst(
+  static Future<List<Ingredient>> getMatchingIngredientstFromIngredient(
     List<Map<String, String>> ingredientsList,
   ) async {
     final db = await instance.database;
@@ -101,5 +102,35 @@ class DatabaseHelper {
     }
 
     return matchedIngredients;
+  }
+
+  Future<List<Ingredient>> getIngredientsForCocktail(int cocktailId) async {
+    final db = await database;
+
+    // Trova tutti gli ingredient_id associati al cocktailId
+    final ingredientLinks = await db.query(
+      'cocktail_ingredient',
+      where: 'cocktail_id = ?',
+      whereArgs: [cocktailId],
+    );
+
+    List<Ingredient> ingredients = [];
+
+    for (final link in ingredientLinks) {
+      final ingredientId = link['ingredient_id'] as int;
+
+      // Recupera l'ingrediente completo dalla tabella fav_ingredients
+      final result = await db.query(
+        'fav_ingredients',
+        where: 'id = ?',
+        whereArgs: [ingredientId],
+      );
+
+      if (result.isNotEmpty) {
+        ingredients.add(Ingredient.fromMap(result.first));
+      }
+    }
+
+    return ingredients;
   }
 }
