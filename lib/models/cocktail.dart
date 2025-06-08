@@ -20,7 +20,7 @@ class Cocktail {
     return {'title': title, 'description': description};
   }
 
-  static Future<Cocktail> fromMap(Map<String, Object?> map) async {
+  static Future<Cocktail> fromMapForGemini(Map<String, Object?> map) async {
     return Cocktail(
       title: map['title'] as String,
       description: map['recipe'] as String,
@@ -31,6 +31,20 @@ class Cocktail {
       ),
     );
   }
+
+  static Future<Cocktail> fromMap (Map<String, dynamic> map) async {
+    return Cocktail(
+      id: map['id'] as int,
+      title: map['title'] as String,
+      description: map['recipe'] as String,
+      ingredients:
+          (map['ingredients'] as List<dynamic>)
+              .map((item) => Ingredient.fromMap(item as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+
+  
 
   Cocktail copyWith({
     int? id,
