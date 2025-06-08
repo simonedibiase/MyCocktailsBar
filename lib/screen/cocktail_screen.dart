@@ -32,6 +32,7 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
   List<dynamic> cocktailList = [];
   bool isLoading = false;
   bool coktailSuccessivo = true;
+  int? favoriteCocktailId;
 
   get gemini => null;
 
@@ -96,18 +97,26 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
                               size: 35,
                             ),
                     onPressed: () async {
-                      final newCocktail = await Cocktail.fromMap(cocktail);
-                      setState(() {
-                        isFavorite = !isFavorite;
-                      });
-                      if (isFavorite) {
-                        ref
+                      final Cocktail newCocktail = await Cocktail.fromMap(
+                        cocktail,
+                      );
+
+                      if (!isFavorite) {
+                        var id = await ref
                             .read(favoriteCocktailsProvider.notifier)
                             .addCocktail(newCocktail);
+                        setState(() {
+                          isFavorite = true;
+                          favoriteCocktailId = id;
+                        });                      
                       } else {
-                        ref
+                        await ref
                             .read(favoriteCocktailsProvider.notifier)
-                            .removeCocktail(newCocktail.title);
+                            .removeCocktail(favoriteCocktailId!);
+                        setState(() {
+                          isFavorite = false;
+                          favoriteCocktailId = null;
+                        });
                       }
                     },
                   ),
