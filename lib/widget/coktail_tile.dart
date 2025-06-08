@@ -82,20 +82,10 @@ class _CocktailTileState extends State<CocktailTile>
           onPressed: _handleFavoriteToggle,
         ),
         onTap: () async {
-
           final ingredients = await DatabaseHelper.instance
-              .getIngredientsForCocktail(widget.cocktail.id!);
+              .getIngredientsForCocktail(widget.cocktail.id ?? 0);
 
-      
-          final cocktailMap = {
-            'id': widget.cocktail.id,
-            'title': widget.cocktail.title,
-            'recipe': widget.cocktail.description,
-            'ingredients':
-                ingredients
-                    .map((i) => {'id': i.id, 'nome': i.nome, 'url': i.imageUrl})
-                    .toList(),
-          };
+          final cocktailMap = widget.cocktail.toMap();
 
           Navigator.push(
             context,
