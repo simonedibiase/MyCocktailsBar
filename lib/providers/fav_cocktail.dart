@@ -18,11 +18,13 @@ class FavoriteCocktailNotifier extends StateNotifier<List<Cocktail>> {
       for (final map in maps) {
         final title = map['title'] as String;
         final description = map['description'] as String;
-        final ingredients = await DatabaseHelper.getIngredientsFavCocktail(
-          title,
-        );
+        final ingredients = await DatabaseHelper.instance
+            .getIngredientsForCocktail(map['id'] as int);
+
+        final id = map['id'] as int;
         cocktails.add(
           Cocktail(
+            id: id,
             title: title,
             description: description,
             ingredients: ingredients,
@@ -36,53 +38,47 @@ class FavoriteCocktailNotifier extends StateNotifier<List<Cocktail>> {
     }
   }
 
-  Future<void> addCocktail(Cocktail cocktail) async {
+  Future<int> addCocktail(Cocktail cocktail) async {
     final db = await DatabaseHelper.instance.database;
 
-    await db.insert(
+    final cocktailId = await db.insert(
       'fav_cocktail',
       cocktail.toMap(),
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
 
-    final existing = state.any((c) => c.title.toLowerCase() == cocktail.title.toLowerCase());
-
-    if (!existing) {
-
-      for (final ingredient in cocktail.ingredients) {
-        final existingIngredient = await db.query(
-          'fav_ingredients',
-          where: 'id = ?',
-          whereArgs: [ingredient.id],
-        );
-
-        if (existingIngredient.isEmpty) {
-          await db.insert('fav_ingredients', {
-            'id': ingredient.id,
-            'nome': ingredient.nome,
-            'url': ingredient.imageUrl,
-          }, conflictAlgorithm: ConflictAlgorithm.ignore);
-        }
-
-        await db.insert('cocktail_ingredient', {
-          'cocktail_title': cocktail.title,
-          'ingredient_id': ingredient.id,
-        }, conflictAlgorithm: ConflictAlgorithm.ignore);
-      }
-
-      state = [cocktail, ...state];
+    if (cocktailId == 0) {
+      return 0;
     }
+
+    final updatedCocktail = cocktail.copyWith(id: cocktailId);
+
+    for (final ingredient in cocktail.ingredients) {
+      await db.insert('fav_ingredients', {
+        'id': ingredient.id,
+        'nome': ingredient.nome,
+        'url': ingredient.imageUrl,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+
+      await db.insert('cocktail_ingredient', {
+        'cocktail_id': cocktailId,
+        'ingredient_id': ingredient.id,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+    }
+
+    state = [cocktail, ...state];
+    return cocktailId;
   }
 
-  Future<void> removeCocktail(String nome) async {
+  Future<void> removeCocktail(int id) async {
     final db = await DatabaseHelper.instance.database;
 
     await db.delete(
       'cocktail_ingredient',
-      where: 'cocktail_title = ?',
-      whereArgs: [nome],
+      where: 'cocktail_id = ?',
+      whereArgs: [id],
     );
-    await db.delete('fav_cocktail', where: 'title = ?', whereArgs: [nome]);
+    await db.delete('fav_cocktail', where: 'id = ?', whereArgs: [id]);
 
     final favIngredients = await db.query('fav_ingredients');
 
@@ -104,7 +100,7 @@ class FavoriteCocktailNotifier extends StateNotifier<List<Cocktail>> {
       }
     }
 
-    state = state.where((c) => c.title != nome).toList();
+    state = state.where((c) => c.id != id).toList();
   }
 }
 
