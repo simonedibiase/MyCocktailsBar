@@ -66,7 +66,7 @@ class FavoriteCocktailNotifier extends StateNotifier<List<Cocktail>> {
       }, conflictAlgorithm: ConflictAlgorithm.ignore);
     }
 
-    state = [cocktail, ...state];
+    state = [updatedCocktail, ...state];
     return cocktailId;
   }
 
