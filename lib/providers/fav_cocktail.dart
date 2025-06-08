@@ -43,7 +43,7 @@ class FavoriteCocktailNotifier extends StateNotifier<List<Cocktail>> {
 
     final cocktailId = await db.insert(
       'fav_cocktail',
-      cocktail.toMap(),
+      cocktail.toMapSmall(),
       conflictAlgorithm: ConflictAlgorithm.ignore,
     );
 
