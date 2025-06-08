@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:my_coctails_bar/database/database_helper.dart';
 import 'package:my_coctails_bar/models/cocktail.dart';
 import 'package:my_coctails_bar/providers/fav_cocktail.dart';
 import 'package:my_coctails_bar/screen/cocktail_screen.dart';
@@ -14,17 +15,8 @@ class FavCocktail extends ConsumerWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final cocktails = ref.watch(favoriteCocktailsProvider);
 
-    debugPrint('⚙️ Cocktail preferiti trovati: ${cocktails.length}');
-    for (var c in cocktails) {
-      debugPrint(
-        '🍸 ${c.title} - ${c.ingredients.map((i) => i.nome).join(', ')}',
-      );
-    }
-
     void _removeCocktail(Cocktail cocktail) {
-      ref
-          .read(favoriteCocktailsProvider.notifier)
-          .removeCocktail(cocktail.title);
+      ref.read(favoriteCocktailsProvider.notifier).removeCocktail(cocktail.id!);
     }
 
     return Scaffold(
