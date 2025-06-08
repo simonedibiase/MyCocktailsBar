@@ -40,13 +40,28 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
   void initState() {
     super.initState();
     cocktail = widget.cocktail;
+    category = widget.category;
     cocktailList = [cocktail];
-    loadIngredients();
+    //loadIngredients();
+
+    if (category == 'Favorites') {
+      isFavorite = true;
+      favoriteCocktailId = cocktail['id'];
+      completeIngredients =
+          cocktail['ingredients']
+              .map<Ingredient>(
+                (ingredientMap) => Ingredient.fromMap(ingredientMap),
+              )
+              .toList();
+    } else {
+      loadIngredients();
+    }
   }
 
   Future<void> loadIngredients() async {
-    final ingredients = await await DatabaseHelper.instance
-        .fetchIngredientsFromDb(cocktail['ingredients']);
+    final ingredients = await DatabaseHelper.instance.fetchIngredientsFromDb(
+      cocktail['ingredients'],
+    );
     setState(() {
       completeIngredients = ingredients;
     });
@@ -97,18 +112,23 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
                               size: 35,
                             ),
                     onPressed: () async {
-                      final Cocktail newCocktail = await Cocktail.fromMap(
-                        cocktail,
-                      );
-
                       if (!isFavorite) {
+                        final Cocktail newCocktail;
+                        if (category == 'Favorites') {
+                          newCocktail = await Cocktail.fromMap(cocktail);
+                        } else {
+                          newCocktail = await Cocktail.fromMapForGemini(
+                            cocktail,
+                          );
+                        }
+
                         var id = await ref
                             .read(favoriteCocktailsProvider.notifier)
                             .addCocktail(newCocktail);
                         setState(() {
                           isFavorite = true;
                           favoriteCocktailId = id;
-                        });                      
+                        });
                       } else {
                         await ref
                             .read(favoriteCocktailsProvider.notifier)
