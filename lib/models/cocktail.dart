@@ -16,8 +16,20 @@ class Cocktail {
     required this.ingredients,
   });
 
-  Map<String, Object?> toMap() {
+  Map<String, Object?> toMapSmall() {
     return {'title': title, 'description': description};
+  }
+
+  Map<String, Object?> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'recipe': description,
+      'ingredients':
+          ingredients
+              .map((i) => {'id': i.id, 'nome': i.nome, 'url': i.imageUrl})
+              .toList(),
+    };
   }
 
   static Future<Cocktail> fromMapForGemini(Map<String, Object?> map) async {
