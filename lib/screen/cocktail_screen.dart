@@ -42,7 +42,6 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
     cocktail = widget.cocktail;
     category = widget.category;
     cocktailList = [cocktail];
-    //loadIngredients();
 
     if (category == 'Favorites') {
       isFavorite = true;
@@ -53,8 +52,19 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
                 (ingredientMap) => Ingredient.fromMap(ingredientMap),
               )
               .toList();
+      checkIfOnlyOneFavorite();
     } else {
       loadIngredients();
+    }
+  }
+
+  Future<void> checkIfOnlyOneFavorite() async {
+    final cocktails = await ref.read(favoriteCocktailsProvider);
+
+    if (cocktails.length == 1) {
+      setState(() {
+        coktailSuccessivo = false;
+      });
     }
   }
 
@@ -67,13 +77,31 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
     });
   }
 
+  Future<Cocktail?> getNextCocktail(
+    Cocktail currentCocktail,
+    WidgetRef ref,
+  ) async {
+    final favorites = ref.read(favoriteCocktailsProvider);
+
+    if (favorites.isEmpty) return null;
+
+    final currentIndex = favorites.indexWhere(
+      (c) => c.id == currentCocktail.id,
+    );
+
+    if (currentIndex + 1 >= favorites.length) {
+      return favorites.first;
+    }
+
+    return favorites[currentIndex + 1];
+  }
+
   @override
   Widget build(BuildContext context) {
     print(cocktail);
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final ingredients = ref.watch(userIngredientsProvider);
-    final gemini = Gemini();
 
     return Scaffold(
       appBar: AppBar(title: const Text("My coktail")),
@@ -189,96 +217,14 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
                             isLoading
                                 ? null
                                 : () async {
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-
-                                  final gemini = Gemini();
-                                  await gemini.initGemini();
-
-                                  final ingredientNames =
-                                      ingredients
-                                          .map((ingredient) => ingredient.nome)
-                                          .toList();
-                                  final ingredientString = ingredientNames.join(
-                                    ', ',
-                                  );
-                                  var outputGemini = await gemini
-                                      .getNewCocktail(
-                                        ingredientString,
-                                        widget.category,
-                                        cocktailList,
-                                      );
-
-                                  Map<String, dynamic> cocktailData = {};
-                                  List<dynamic> cocktailIngredients = [];
-
-                                  try {
-                                    cocktailData = jsonDecode(
-                                      outputGemini.text ?? '{}',
-                                    );
-                                    cocktailIngredients =
-                                        cocktailData['ingredients']
-                                            as List<dynamic>? ??
-                                        [];
-                                  } catch (e) {
-                                    print('Errore nel parsing JSON: $e');
-                                    cocktailData = {
-                                      "Error": "Risposta non valida",
-                                    };
-                                  }
-
-                                  bool ingredientCeck = cocktailIngredients
-                                      .every((ingredient) {
-                                        final ingredientName =
-                                            ingredient['name']
-                                                ?.toString()
-                                                .toLowerCase();
-                                        return ingredients.any(
-                                          (userIng) =>
-                                              userIng.nome.toLowerCase() ==
-                                              ingredientName,
-                                        );
-                                      });
-
-                                  if (cocktailData['Error'] != null) {
-                                    coktailSuccessivo = false;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'There are not enough ingredients to generate a new cocktail.\ntry entering more ingredients...',
-                                          style:
-                                              Theme.of(
-                                                context,
-                                              ).textTheme.bodySmall,
-                                        ),
-                                      ),
-                                    );
+                                  if (category == 'Favorites') {
+                                    await loadNextFavoriteCocktail();
                                   } else {
-                                    if (ingredientCeck) {
-                                      setState(() {
-                                        cocktail = cocktailData;
-                                        loadIngredients();
-                                        cocktailList.add(cocktailData);
-                                        isFavorite = false;
-                                      });
-                                    } else {
-                                      Fluttertoast.showToast(
-                                        msg:
-                                            "Sorry, there was an error.\nPlease try again..",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0,
-                                      );
-                                    }
+                                    await generateNewCocktailWithGemini(
+                                      ingredients,
+                                    );
                                   }
-                                  setState(() {
-                                    isLoading = false;
-                                  });
                                 },
-
                         child:
                             isLoading
                                 ? CircularProgressIndicator(
@@ -287,7 +233,9 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
                                   ),
                                 )
                                 : Text(
-                                  'Generate a new ${widget.category.toLowerCase()} ',
+                                  category == 'Favorites'
+                                      ? 'Go to the next drink'
+                                      : 'Generate a new ${widget.category.toLowerCase()}',
                                   style: TextStyle(
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w600,
@@ -302,5 +250,92 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
               )
               : SizedBox.shrink(), //widget che occupa spazio zero, non disegna nulla
     );
+  }
+
+  Future<void> loadNextFavoriteCocktail() async {
+    setState(() => isLoading = true);
+
+    final current = await Cocktail.fromMap(cocktail);
+    final nextCocktail = await getNextCocktail(current, ref);
+
+    if (nextCocktail == null) {
+      setState(() => isLoading = false);
+      Fluttertoast.showToast(msg: "No more cocktails found.");
+      return;
+    }
+
+    setState(() {
+      cocktail = nextCocktail.toMap();
+      favoriteCocktailId = nextCocktail.id;
+      completeIngredients = nextCocktail.ingredients;
+      isFavorite = true;
+      isLoading = false;
+    });
+  }
+
+  Future<void> generateNewCocktailWithGemini(
+    List<Ingredient> ingredients,
+  ) async {
+    setState(() => isLoading = true);
+
+    final gemini = Gemini();
+    await gemini.initGemini();
+
+    final ingredientNames = ingredients.map((i) => i.nome).toList();
+    final ingredientString = ingredientNames.join(', ');
+
+    var outputGemini = await gemini.getNewCocktail(
+      ingredientString,
+      widget.category,
+      cocktailList,
+    );
+
+    Map<String, dynamic> cocktailData = {};
+    List<dynamic> cocktailIngredients = [];
+
+    try {
+      cocktailData = jsonDecode(outputGemini.text ?? '{}');
+      cocktailIngredients = cocktailData['ingredients'] ?? [];
+    } catch (e) {
+      print('Errore nel parsing JSON: $e');
+      cocktailData = {"Error": "Risposta non valida"};
+    }
+
+    bool ingredientCheck = cocktailIngredients.every((ingredient) {
+      final ingredientName = ingredient['name']?.toString().toLowerCase();
+      return ingredients.any(
+        (userIng) => userIng.nome.toLowerCase() == ingredientName,
+      );
+    });
+
+    if (cocktailData['Error'] != null) {
+      coktailSuccessivo = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'There are not enough ingredients to generate a new cocktail.\nTry entering more ingredients...',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      );
+    } else if (ingredientCheck) {
+      setState(() {
+        cocktail = cocktailData;
+        loadIngredients();
+        cocktailList.add(cocktailData);
+        isFavorite = false;
+      });
+    } else {
+      Fluttertoast.showToast(
+        msg: "Sorry, there was an error.\nPlease try again.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+
+    setState(() => isLoading = false);
   }
 }
