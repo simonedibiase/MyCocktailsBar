@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:my_coctails_bar/database/database_helper.dart';
 import 'package:my_coctails_bar/models/cocktail.dart';
+import 'package:my_coctails_bar/screen/cocktail_screen.dart';
 
 class CocktailTile extends StatefulWidget {
   final Cocktail cocktail;
@@ -79,6 +81,33 @@ class _CocktailTileState extends State<CocktailTile>
           ),
           onPressed: _handleFavoriteToggle,
         ),
+        onTap: () async {
+
+          final ingredients = await DatabaseHelper.instance
+              .getIngredientsForCocktail(widget.cocktail.id!);
+
+      
+          final cocktailMap = {
+            'id': widget.cocktail.id,
+            'title': widget.cocktail.title,
+            'recipe': widget.cocktail.description,
+            'ingredients':
+                ingredients
+                    .map((i) => {'id': i.id, 'nome': i.nome, 'url': i.imageUrl})
+                    .toList(),
+          };
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => CocktailScreen(
+                    cocktail: cocktailMap,
+                    category: 'Favorites',
+                  ),
+            ),
+          );
+        },
       ),
     );
   }
