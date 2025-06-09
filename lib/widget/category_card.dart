@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/screen/category.dart';
-import 'package:my_coctails_bar/screen/cocktail.dart';
+import 'package:my_coctails_bar/screen/cocktail_screen.dart';
 import 'package:my_coctails_bar/services/gemini.dart';
 
 class CategoryCard extends ConsumerWidget {
@@ -77,7 +77,7 @@ class CategoryCard extends ConsumerWidget {
               MaterialPageRoute(
                 builder:
                     (context) =>
-                        Cocktail(cocktail: cocktailData, category: label),
+                        CocktailScreen(cocktail: cocktailData, category: label),
               ),
             );
           } else {

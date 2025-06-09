@@ -5,7 +5,7 @@ import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/widget/category_card.dart';
 import 'package:my_coctails_bar/widget/header.dart';
 
-class Category extends ConsumerStatefulWidget  {
+class Category extends ConsumerStatefulWidget {
   const Category({super.key});
 
   @override
@@ -41,7 +41,9 @@ class _CategoryState extends ConsumerState<Category> {
                 children: [
                   Text(
                     'Select the category',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800, // testo più grassetto
+                    ),
                   ),
                   if (ingredients.isEmpty)
                     Positioned.fill(
@@ -63,16 +65,28 @@ class _CategoryState extends ConsumerState<Category> {
                   childAspectRatio: 2 / 1.95,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
-                    CategoryCard(image: 'dolce.jpeg', label: 'Sweet cocktail', 
-                      isLoading: false, onLoadingChanged: handleLoadingChanged,
-                    ),
-                    CategoryCard(image: 'amaro.jpg', label: 'Bitter cocktail', isLoading: false,
+                    CategoryCard(
+                      image: 'dolce.jpeg',
+                      label: 'Sweet cocktail',
+                      isLoading: false,
                       onLoadingChanged: handleLoadingChanged,
                     ),
-                    CategoryCard(image: 'shot.jpg', label: 'Shot', isLoading: false,
+                    CategoryCard(
+                      image: 'amaro.jpg',
+                      label: 'Bitter cocktail',
+                      isLoading: false,
                       onLoadingChanged: handleLoadingChanged,
                     ),
-                    CategoryCard(image: 'analcolico.jpg', label: 'Mocktail', isLoading: false,
+                    CategoryCard(
+                      image: 'shot.jpg',
+                      label: 'Shot',
+                      isLoading: false,
+                      onLoadingChanged: handleLoadingChanged,
+                    ),
+                    CategoryCard(
+                      image: 'analcolico.jpg',
+                      label: 'Mocktail',
+                      isLoading: false,
                       onLoadingChanged: handleLoadingChanged,
                     ),
                   ],
@@ -82,20 +96,20 @@ class _CategoryState extends ConsumerState<Category> {
                 if (ingredients.isEmpty)
                   Container(color: const Color.fromARGB(200, 255, 255, 255)),
 
-                 if (isLoading)
+                if (isLoading)
                   Container(
                     color: const Color.fromARGB(200, 255, 255, 255),
                     child: const Center(
-                      child: CircularProgressIndicator(color: Color.fromARGB(255, 255, 106, 0),
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 255, 106, 0),
                       ),
                     ),
                   ),
               ],
             ),
           ),
-        ],      
+        ],
       ),
-     
     );
   }
 }

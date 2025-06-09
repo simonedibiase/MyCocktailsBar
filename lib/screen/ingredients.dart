@@ -48,7 +48,9 @@ class Ingredients extends ConsumerWidget {
               width: double.infinity,
               child: Text(
                 'Available ingredients',
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
                 textAlign: TextAlign.left,
               ),
             ),
