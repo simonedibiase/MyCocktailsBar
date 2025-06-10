@@ -6,7 +6,7 @@ import 'package:my_coctails_bar/widget/category_card.dart';
 import 'package:my_coctails_bar/widget/header.dart';
 
 class Category extends ConsumerStatefulWidget {
-  const Category({super.key});
+  const Category({super.key = const Key('category_screen')});
 
   @override
   ConsumerState<Category> createState() => _CategoryState();

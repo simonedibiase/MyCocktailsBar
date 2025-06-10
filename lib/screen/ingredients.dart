@@ -7,7 +7,7 @@ import 'package:my_coctails_bar/widget/ingredient_tile.dart';
 import 'package:my_coctails_bar/widget/header.dart';
 
 class Ingredients extends ConsumerWidget {
-  const Ingredients({super.key});
+  const Ingredients({super.key = const Key('ingredients_screen')});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,9 +82,9 @@ class Ingredients extends ConsumerWidget {
                           },
                           child: IngredientTile(
                             ingredient,
-                            onDelete: () {
+                            /*onDelete: () {
                               _removeIngredientWithUndo(ingredient);
-                            },
+                            },*/
                           ),
                         );
                       },
