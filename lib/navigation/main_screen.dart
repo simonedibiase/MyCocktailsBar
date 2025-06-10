@@ -26,11 +26,17 @@ class _MainScreenState extends State<MainScreen> {
         selectedIndex: currentPageIndex,
         destinations: const [
           NavigationDestination(
+            key: Key('nav_ingredients'),
             icon: Icon(Icons.list_alt),
             label: 'Ingredients',
           ),
-          NavigationDestination(icon: Icon(Icons.local_bar), label: 'Cocktail'),
           NavigationDestination(
+            key: Key('nav_category'),
+            icon: Icon(Icons.local_bar),
+            label: 'Cocktail',
+          ),
+          NavigationDestination(
+            key: Key('nav_favorite'),
             icon: Icon(Icons.favorite_border),
             label: 'favorite',
           ),
