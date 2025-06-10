@@ -4,9 +4,9 @@ import 'package:my_coctails_bar/models/ingredient.dart';
 
 class IngredientTile extends StatelessWidget {
   final Ingredient ingredient;
-  final VoidCallback? onDelete;
+  //final VoidCallback? onDelete;
 
-  const IngredientTile(this.ingredient, {this.onDelete, super.key});
+  const IngredientTile(this.ingredient, {/*this.onDelete,*/ super.key});
 
   @override
   Widget build(BuildContext context) {
