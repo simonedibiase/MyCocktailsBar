@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
+import 'package:my_coctails_bar/providers/internet_checker.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/screen/scanner.dart';
 import 'package:my_coctails_bar/widget/ingredient_tile.dart';
@@ -15,6 +16,7 @@ class Ingredients extends ConsumerWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final ingredients = ref.watch(userIngredientsProvider);
     final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
+    final isOnline = ref.watch(internetChecker);
 
     void _removeIngredientWithUndo(Ingredient ingredient) {
       ingredientsNotifier.removeIngredient(ingredient);
@@ -48,9 +50,9 @@ class Ingredients extends ConsumerWidget {
               width: double.infinity,
               child: Text(
                 'Available ingredients',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w800),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -94,12 +96,28 @@ class Ingredients extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          if (!isOnline) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "You can't add ingredients without a connection",
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.white),
+                ),
+              ),
+            );
+            return;
+          }
           final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const Scanner()),
           );
         },
-        backgroundColor: const Color.fromARGB(255, 255, 106, 0),
+        backgroundColor:
+            isOnline
+                ? const Color.fromARGB(255, 255, 106, 0)
+                : const Color.fromARGB(255, 255, 170, 109),
         child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );

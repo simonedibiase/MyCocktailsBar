@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
@@ -10,8 +12,15 @@ class IngredientTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLocalFile = ingredient.imageUrl.startsWith('/');
+    final imageWidget = Image.file(
+      File(ingredient.imageUrl),
+      width: 70,
+      height: 70,
+    );
+
     return ListTile(
-      leading: Image.network(ingredient.imageUrl, width: 70, height: 70),
+      leading: imageWidget,
       title: Text(
         ingredient.nome,
         maxLines: 1,

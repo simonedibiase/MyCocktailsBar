@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:my_coctails_bar/models/ingredient.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
+import 'package:my_coctails_bar/services/dowload_and_save_image.dart';
 
 class IngredientCard extends ConsumerStatefulWidget {
   const IngredientCard(this.ingredient, {required this.onDismiss, super.key});
@@ -25,10 +26,22 @@ class _IngredientItemState extends ConsumerState<IngredientCard> {
       _isAdded = true; //mette la spunta verde
     });
 
+    final localPath = await downloadAndSaveImage(
+      widget.ingredient.imageUrl,
+      widget.ingredient.nome,
+    );
+
+    final localIngredient = Ingredient(
+      id: widget.ingredient.id,
+      nome: widget.ingredient.nome,
+      imageUrl:
+          localPath ?? widget.ingredient.imageUrl, 
+    );
+
     try {
       await ref
           .read(userIngredientsProvider.notifier)
-          .addIngredient(widget.ingredient);
+          .addIngredient(localIngredient);
     } catch (e) {
       _alreadyExist = true;
     }

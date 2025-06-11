@@ -11,24 +11,24 @@ void main() {
     final ingredient = Ingredient(
       id: 1,
       nome: 'Limone',
-      imageUrl: 'https://example.com/limone.png',
+      imageUrl: '/mock/path/lemon.png',
     );
 
-    await mockNetworkImagesFor(() async {
-      await tester.pumpWidget(
-        MaterialApp(home: Scaffold(body: IngredientTile(ingredient))),
-      );
+    await tester.pumpWidget(
+      MaterialApp(home: Scaffold(body: IngredientTile(ingredient))),
+    );
 
-      expect(find.text('Limone'), findsOneWidget);
+    // Verifica che il nome venga visualizzato
+    expect(find.text('Limone'), findsOneWidget);
 
-      final imageFinder = find.byType(Image);
-      expect(imageFinder, findsOneWidget);
-
-      final Image imageWidget = tester.widget(imageFinder);
-      expect(imageWidget.image, isA<NetworkImage>());
-      
-      final networkImage = imageWidget.image as NetworkImage;
-      expect(networkImage.url, equals('https://example.com/limone.png'));
-    });
+    // Verifica che venga mostrato un'immagine (Image widget)
+    expect(
+      tester.widget<Image>(find.byType(Image)).image,
+      isA<FileImage>().having(
+        (img) => img.file.path,
+        'file path',
+        '/mock/path/lemon.png',
+      ),
+    );
   });
 }
