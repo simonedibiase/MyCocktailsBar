@@ -44,7 +44,7 @@ class Cocktail {
     );
   }
 
-  static Future<Cocktail> fromMap (Map<String, dynamic> map) async {
+  static Cocktail fromMap (Map<String, dynamic> map) {
     return Cocktail(
       id: map['id'] as int,
       title: map['title'] as String,

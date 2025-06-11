@@ -8,7 +8,7 @@ import 'package:my_coctails_bar/widget/coktail_tile.dart';
 import 'package:my_coctails_bar/widget/header.dart';
 
 class FavCocktail extends ConsumerWidget {
-  const FavCocktail({super.key});
+  const FavCocktail({super.key = const Key('favorites_screen')});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

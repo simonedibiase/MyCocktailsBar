@@ -3,7 +3,7 @@ import 'package:my_coctails_bar/navigation/main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FirstScreen extends StatelessWidget {
-  const FirstScreen({super.key});
+  const FirstScreen({super.key = const Key('first_screen')});
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +31,7 @@ class FirstScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             ElevatedButton(
+              key: const Key('intro_forward_button'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent, // Sfondo trasparente
                 shadowColor: Colors.transparent, // Nessuna ombra
