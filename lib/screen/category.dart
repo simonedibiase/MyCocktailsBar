@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:my_coctails_bar/providers/internet_checker.dart';
 import 'package:my_coctails_bar/providers/user_ingredient.dart';
 import 'package:my_coctails_bar/widget/category_card.dart';
 import 'package:my_coctails_bar/widget/header.dart';
@@ -26,7 +27,9 @@ class _CategoryState extends ConsumerState<Category> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final ingredients = ref.watch(userIngredientsProvider);
-    final ingredientsNotifier = ref.read(userIngredientsProvider.notifier);
+    final isOnline = ref.watch(internetChecker);
+
+    final shouldBlock = !isOnline || ingredients.isEmpty;
 
     return Scaffold(
       body: Column(
@@ -45,7 +48,7 @@ class _CategoryState extends ConsumerState<Category> {
                       fontWeight: FontWeight.w800, // testo più grassetto
                     ),
                   ),
-                  if (ingredients.isEmpty)
+                  if (shouldBlock)
                     Positioned.fill(
                       child: Container(
                         color: const Color.fromARGB(200, 255, 255, 255),
@@ -93,8 +96,28 @@ class _CategoryState extends ConsumerState<Category> {
                 ),
 
                 // Layer grigio se ingredients è vuoto
-                if (ingredients.isEmpty)
-                  Container(color: const Color.fromARGB(200, 255, 255, 255)),
+                if (shouldBlock)
+                  GestureDetector(
+                    onTap: () {
+                      final reason =
+                          !isOnline
+                              ? "Connection unavailable... \nIt is not possible to generate cocktails"
+                              : "No ingredients available...\nAdd some to generate cocktails.";
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            reason,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      color: const Color.fromARGB(200, 255, 255, 255),
+                    ),
+                  ),
 
                 if (isLoading)
                   Container(
