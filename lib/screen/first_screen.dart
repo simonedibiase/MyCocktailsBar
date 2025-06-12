@@ -7,6 +7,8 @@ class FirstScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
@@ -15,7 +17,7 @@ class FirstScreen extends StatelessWidget {
           children: [
             SizedBox(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height / 1.7,
+              height: (screenHeight / 1.7),
               child: Image.asset('assets/negroni4.jpg', fit: BoxFit.contain),
             ),
             Text(
@@ -23,19 +25,18 @@ class FirstScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 0.02),
             Text(
-              'Discover refined recipes based on \nyour available ingredients',
+              "Scan your ingredients’ barcodes to get\nrecipes based on what you have",
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: screenHeight * 0.035),
             ElevatedButton(
               key: const Key('intro_forward_button'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.transparent, // Sfondo trasparente
                 shadowColor: Colors.transparent, // Nessuna ombra
-                elevation: 0, // Nessuna elevazione
               ),
               onPressed: () async {
                 final prefs = await SharedPreferences.getInstance();

@@ -33,12 +33,12 @@ class _MainScreenState extends State<MainScreen> {
           NavigationDestination(
             key: Key('nav_category'),
             icon: Icon(Icons.local_bar),
-            label: 'Cocktail',
+            label: 'Drinks',
           ),
           NavigationDestination(
             key: Key('nav_favorite'),
             icon: Icon(Icons.favorite_border),
-            label: 'favorite',
+            label: 'Favorites',
           ),
         ],
       ),

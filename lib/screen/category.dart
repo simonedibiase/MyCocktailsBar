@@ -45,7 +45,7 @@ class _CategoryState extends ConsumerState<Category> {
                   Text(
                     'Select the category',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w800, // testo più grassetto
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   if (shouldBlock)
@@ -65,7 +65,7 @@ class _CategoryState extends ConsumerState<Category> {
                 // Griglia delle categorie
                 GridView.count(
                   crossAxisCount: 2,
-                  childAspectRatio: 2 / 1.95,
+                  childAspectRatio: 0.96,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     CategoryCard(

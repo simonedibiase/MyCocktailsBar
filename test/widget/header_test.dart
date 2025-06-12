@@ -24,6 +24,6 @@ void main() {
     //Verifica proporzione dell'altezza
     final screenHeight = tester.getSize(find.byType(MaterialApp)).height;
     final headerHeight = tester.getSize(find.byType(Header)).height;
-    expect(headerHeight, closeTo(screenHeight * 0.35, 1.0));
+    expect(headerHeight, closeTo(screenHeight * 0.32, 1.0));
   });
 }

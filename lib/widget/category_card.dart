@@ -101,11 +101,11 @@ class CategoryCard extends ConsumerWidget {
             child: Image.asset(
               'assets/$image',
               fit: BoxFit.fill,
-              height: screenHeight * 0.18,
-              width: screenHeight * 0.18,
+              height: screenHeight * 0.19,
+              width: screenHeight * 0.19,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: screenHeight * 0.005),
           SizedBox(
             width: screenHeight * 0.18,
             child: Text(label, style: TextStyle(fontSize: 17)),

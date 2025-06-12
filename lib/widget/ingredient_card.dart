@@ -34,8 +34,7 @@ class _IngredientItemState extends ConsumerState<IngredientCard> {
     final localIngredient = Ingredient(
       id: widget.ingredient.id,
       nome: widget.ingredient.nome,
-      imageUrl:
-          localPath ?? widget.ingredient.imageUrl, 
+      imageUrl: localPath ?? widget.ingredient.imageUrl,
     );
 
     try {
@@ -96,11 +95,14 @@ class _IngredientItemState extends ConsumerState<IngredientCard> {
               width: screenHeight * 0.10,
               height: screenHeight * 0.10,
             ),
-            SizedBox(
-              width: screenWidth * 0.45,
-              child: AutoSizeText(widget.ingredient.nome),
+            Expanded(
+              child: AutoSizeText(
+                widget.ingredient.nome,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const Spacer(),
+            //const Spacer(),
             FloatingActionButton(
               onPressed: _handleAdd,
               backgroundColor:
