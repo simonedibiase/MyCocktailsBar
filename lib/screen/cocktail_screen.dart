@@ -98,7 +98,6 @@ class _CocktailScreenState extends ConsumerState<CocktailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(cocktail);
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final ingredients = ref.watch(userIngredientsProvider);
