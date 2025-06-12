@@ -6,7 +6,7 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double heightBox = (MediaQuery.of(context).size.height * 0.35);
+    final double heightBox = (MediaQuery.of(context).size.height * 0.32);
     return SizedBox(
       width: double.infinity,
       height: heightBox,
@@ -19,7 +19,7 @@ class Header extends StatelessWidget {
             ),
             child: Image.asset(
               'assets/sfondo1.png',
-              height: heightBox * 0.84,
+              height: heightBox * 0.90,
               width: double.infinity,
               fit: BoxFit.cover, //riempie completamente lo spazio disponibile
             ),
