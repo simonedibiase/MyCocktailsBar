@@ -92,7 +92,6 @@ class Gemini {
 
     final content = [Content.text(prompt)];
     final response = await model.generateContent(content);
-    print('*****${response.text?.trim()}********');
     return response.text?.trim() ?? '{"Error": "Nessuna risposta dal modello"}';
   }
 
@@ -153,18 +152,15 @@ class Gemini {
     updateSchema(_setSchemaCocktail());
     GenerativeModel model = gemini.model;
 
-    print('INGREDINTI DISPONIBILI: *$ingredients**');
-
     var prompt =
-        '''Sei uno barman esperto di alcolici che ha viaggiato per il mondo e che conosce tutti i coktail tipici di ogni paese.\n
-            ora gestisci un bar con clienti molto esigenti, devi rispettare esattamente le richieste dei clienti.
-            Voglio che tu suggerisca un cocktail da preparare, nello specifico devi creare un $category, controlla quindi che il coktail rispetta esattamente tale categoria\n\n
-            gli ingredienti che hai a disposizione sono i seguenti: $ingredients, non devi usare altri ingredienti oltre quelli a disposizione, se hai a disposizione un ingrediente non puoi usare una sua variante, ad esempio se hai a disposizione acqua non puoi usare acqua frizzante.
-            La prima cosa che devi fare è controllare che gli ingredienti che ho a disposizione sono sufficienti per la preparazione, se non ho ingredienti o se non sono sufficienti\n
-            segnalalo con un messaggio di errore specificano che gli ingredienti non sono sufficienti all' interno del campo Error, e non generarmi un cocktail e restituiscimi null per il resto delle informazioni.\n\n
+        '''You are an expert bartender in spirits who has traveled the world and knows every country’s typical cocktails.
+            Now you run a bar with very demanding customers, and you must follow the customers’ requests exactly.
+            I want you to suggest a cocktail to prepare. Specifically, you must create a $category, so ensure the cocktail matches that category exactly.
+            The ingredients you have available are: $ingredients. You must not use any ingredients other than those available. If you have a given ingredient, you may not use its variant—e.g., if you have water, you cannot use sparkling water. Ingredients you don’t have cannot even be used as drink garnishes.
+            The first thing you must do is check whether I have sufficient ingredients for the preparation. If I don’t have the ingredients or they are insufficient,
+            signal it with an error message specifying that the ingredients are insufficient in the Error field, do not generate a cocktail, and return null for the other fields.
             
-            Altrimenti, solo se i miei ingredienti sono sufficienti, Voglio che tu mi dia il titolo di un coktail , gli ingredienti e la ricetta per la reparazione del cocktail. Se hai trovato aleno un'errore nei dati allora descrivimi l'errore, altrimenti
-            imposta l'errore a null''';
+            Otherwise, only if my ingredients are sufficient, I want you to give me the title of a cocktail, the list of ingredients, and the recipe for preparing the cocktail. If you find any error in the data, describe the error; otherwise, set Error to null.''';
 
     final content = [Content.text(prompt)];
     final response = await model.generateContent(content);
@@ -180,19 +176,47 @@ class Gemini {
     Gemini gemini = Gemini();
     updateSchema(_setSchemaCocktail());
     GenerativeModel model = gemini.model;
-    print('INGREDINTI DISPONIBILI: *$ingredients**');
 
     var prompt =
-        '''Sei uno barman esperto di alcolici che ha viaggiato per il mondo e che conosce tutti i coktail tipici di ogni paese.\n
-            ora gestisci un bar con clienti molto esigenti, devi rispettare esattamente le richieste dei clienti.
-            Voglio che tu suggerisca un cocktail da preparare, nello specifico devi creare un $category, controlla quindi che il coktail rispetta esattamente tale categoria.\n\n
-            hai già preparato i seguenti coktail: $oldCocktails.
-            gli ingredienti che hai a disposizione sono i seguenti: $ingredients, non devi usare altri ingredienti oltre quelli a disposizione, se hai a disposizione un ingrediente non puoi usare una sua variante, ad esempio se hai a disposizione acqua non puoi usare acqua frizzante.
-            La prima cosa che devi fare è controllare che gli ingredienti che ho a disposizione sono sufficienti per la preparazione di un coktail diverso da quelli che hai già preparato, se gli ingredienti non sono sufficienti per la preparazione di un nuovo coktail\n
-            segnalalo con un messaggio di errore specificano che gli ingredienti non sono sufficienti all' interno del campo Error, e non generarmi un cocktail e restituiscimi null per il resto delle informazioni.\n\n
+        '''You are an expert spirits bartender with international experience and a deep knowledge of each country’s typical cocktails. You now run a bar with highly demanding customers—their requests must be followed to the letter.
+            I’m asking you to suggest a new cocktail to prepare, belonging to the following category: $category. It is essential that the cocktail exactly matches this category.
             
-            Altrimenti, solo se i miei ingredienti sono sufficienti per la preparazione di un coktail diverso dai precedenti,, Voglio che tu mi dia il titolo di un coktail , gli ingredienti con i rispettivi url delle foto e la ricetta per la reparazione del cocktail. Se hai trovato aleno un'errore nei dati allora descrivimi l'errore, altrimenti
-            imposta l'errore a null''';
+            The following JSON contains the cocktails you have already prepared, each with fields [Error, ingredients, recipe]: $oldCocktails. Within each ingredients array, you will find items like [{"name": "Cola"}, {"name": "Peach Juice"}].
+            The ingredients currently available are: $ingredients.
+
+            Rules to follow:
+            Use only the available ingredients. You may not use variants (e.g., if you have “water,” you cannot use “sparkling water”).
+            Ingredients not available cannot be used—even as decoration.
+            If the category is Mocktail, you cannot use any alcoholic ingredients.
+            Compare each ingredient of the new cocktail with those already present in each cocktail in $oldCocktails, specifically in their ingredients fields.
+
+            Critical Rule:
+            The cocktail you propose must not contain exactly the same combination of ingredients as any previously prepared cocktail.
+            The order of ingredients does not matter: two cocktails are considered identical if they have the same ingredients, regardless of order or differing quantities.
+            You may reuse one or more ingredients that were used before, but not all together in the same combination as any existing cocktail.
+
+            What to do:
+            Check whether it is possible—given the available ingredients—to create a cocktail that:
+            Respects the specified category (e.g., if it's a mocktail, it must contain no alcohol), and
+            Does not have exactly the same list of ingredients (ignoring order and quantities) as any already existing cocktail.
+
+            If it is not possible:
+            Fill the Error field with a clear message explaining that the ingredients are insufficient.
+            Return null for all other fields (name, recipe, ingredients).
+            If it is possible to prepare a valid and different cocktail, return:
+            A brand‑new cocktail suggestion that meets the requested category.
+
+            Provide:
+            The cocktail’s name
+            The list of ingredients (each including its image URL)
+            A detailed recipe for preparation
+            If you found any data errors, describe them in the Error field; otherwise, set Error to null.
+
+            Example check:
+            If you have already created:
+            Cocktail A: {Error: null, ingredients: [{name: Peach Juice}, {name: Cola}], recipe: "…", title: "Peachy Cola"}
+            Cocktail B: {Error: null, ingredients: [{name: Cola}, {name: Peach Juice}], recipe: "…", title: "Peachy Cola Remix"}
+            You cannot propose a Cocktail C with {Cola, Peach Juice} — even if the recipe, order, or quantities differ. ''';
 
     final content = [Content.text(prompt)];
     final response = await model.generateContent(content);
